@@ -94,7 +94,29 @@ public class Main {
                         System.out.println("Error: " + e.getMessage());
                     }
                     break;
-
+                case 6:
+                    try {
+                        System.out.print("Ingrese el DNI del cliente: ");
+                        dni = scanner.nextLine().trim();
+                        bankAccountService.checkBalances(dni);
+                    } catch (Exception e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+                    break;
+                case 7:
+                    List<Customer> allCustomers = customerService.getAllCustomers();
+                    if (allCustomers.isEmpty()) {
+                        System.out.println("No hay clientes registrados.");
+                    } else {
+                        allCustomers.forEach(System.out::println);
+                    }
+                    break;
+                case 8:
+                    System.out.println(" --- Cuentas registradas ---");
+                    List<BankAccount> allAccounts = bankAccountService.getAllAccounts();
+                    if (allAccounts.isEmpty()) System.out.println("No hay cuentas registradas.");
+                    else allAccounts.forEach(System.out::println);
+                    break;
                 case 0:
                     System.out.println("Saliendo del programa...");
                     break;
