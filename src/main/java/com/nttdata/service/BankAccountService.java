@@ -41,6 +41,11 @@ public class BankAccountService {
                 + account.getAccountNumber());
     }
 
+    // Para obtener todas la cuentas bancarias
+    public List<BankAccount> getAllAccounts() {
+        return new ArrayList<>(accounts);
+    }
+
     public double deposit(BankAccount account, double amount) {
         if (amount <= 0)
             throw new IllegalArgumentException("El monto a depositar debe ser positivo.");
@@ -63,6 +68,17 @@ public class BankAccountService {
 
         account.setBalance(newBalance);
         return account.getBalance();
+    }
+
+    public void checkBalances(String dni) {
+        List<BankAccount> clientAccounts = findAccountsByDni(dni);
+
+        for (BankAccount account : clientAccounts) {
+            System.out.printf("Cuenta: %-14s %s - Saldo: %.2f%n",
+                    account.getAccountNumber(),
+                    account.getAccountType(),
+                    account.getBalance());
+        }
     }
 
     // Busca todas las cuentas bancarias por el DNI del cliente.
