@@ -1,4 +1,4 @@
-package model;
+package com.nttdata.model;
 
 public class Customer {
     private String dni;
