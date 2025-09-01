@@ -58,5 +58,12 @@ public class AccountService {
         return AccountMapper.toDTO(newAccount);
     }
 
+    public void deleteAccount(String id) {
+        if (!accountRepository.existsById(id)) {
+            throw new AccountNotFoundException("Cuenta no encontrada con ID: " + id);
+        }
+        accountRepository.deleteById(id);
+    }
+
 
 }
