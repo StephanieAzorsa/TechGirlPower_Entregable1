@@ -1,0 +1,10 @@
+### Make a deposit to an account
+
+PUT http://localhost:8082/api/v1/accounts/c0a80130-9907-1d77-8199-079153c90002/deposit
+Content-Type: application/json
+
+{
+  "amount": 200.00
+}
+
+###

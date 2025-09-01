@@ -1,0 +1,4 @@
+### Get accounts by customer
+GET http://localhost:8082/api/v1/accounts/customer/c0a80109-98fc-1b67-8198-fc8c78fa0000
+
+###
