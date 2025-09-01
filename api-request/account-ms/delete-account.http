@@ -1,0 +1,4 @@
+### Delete an account
+DELETE http://localhost:8082/api/v1/accounts/c0a80109-9907-1c54-8199-076cfd160000
+
+###
