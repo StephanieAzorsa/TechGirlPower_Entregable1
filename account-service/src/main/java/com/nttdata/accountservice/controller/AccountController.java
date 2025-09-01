@@ -2,6 +2,7 @@ package com.nttdata.accountservice.controller;
 
 import com.nttdata.accountservice.dto.AccountRequestDTO;
 import com.nttdata.accountservice.dto.AccountResponseDTO;
+import com.nttdata.accountservice.dto.TransactionRequestDTO;
 import com.nttdata.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -9,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
+
     private final AccountService accountService;
 
     public AccountController(AccountService accountService) {
@@ -52,10 +53,29 @@ public class AccountController {
         return ResponseEntity.ok(newAccount);
     }
 
+    @PutMapping("/{accountId}/deposit")
+    public ResponseEntity<AccountResponseDTO> deposit(
+            @PathVariable String accountId,
+            @Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
+
+        AccountResponseDTO updatedAccount = accountService
+                .deposit(accountId, transactionRequestDTO);
+
+        return ResponseEntity.ok(updatedAccount);
+    }
+
+    @PutMapping("/{accountId}/withdraw")
+    public ResponseEntity<AccountResponseDTO> withdraw(
+            @PathVariable String accountId,
+            @Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
+
+        AccountResponseDTO updatedAccount = accountService.withdraw(accountId, transactionRequestDTO);
+        return ResponseEntity.ok(updatedAccount);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAccount(@PathVariable String id) {
         accountService.deleteAccount(id);
         return ResponseEntity.noContent().build();
     }
-
 }
