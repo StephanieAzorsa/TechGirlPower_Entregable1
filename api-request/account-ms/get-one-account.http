@@ -1,0 +1,3 @@
+### Get one account
+GET http://localhost:8082/api/v1/accounts/c0a80109-9907-176c-8199-07584f890000
+####
