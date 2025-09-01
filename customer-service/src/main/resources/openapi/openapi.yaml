@@ -1,61 +1,43 @@
-openapi: 3.0.3
+openapi: 3.0.1
 info:
-  title: Customer Management API
+  title: Customer Service API
+  description: Microservicio para gestión de clientes bancarios
   version: 1.0.0
-  description: API para gestión de clientes
-  contact:
-    name: Equipo de Desarrollo
-    email: desarrollo@empresa.com
 
 servers:
-  - url: http://localhost:8080
-    description: Servidor local de desarrollo
-  - url: https://api.customer-service
-    description: Servidor de producción
+  - url: http://localhost:4000
+    description: Servidor de desarrollo
+
+tags:
+  - name: Customers
+    description: Operaciones relacionadas con clientes
 
 paths:
   /customers:
     post:
+      tags: [Customers]
       summary: Crear un nuevo cliente
-      description: Crea un nuevo cliente en el sistema
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomerRequestDTO'
-            examples:
-              example1:
-                value:
-                  name: "Juan"
-                  lastname: "Pérez"
-                  dni: "12345678A"
-                  email: "juan.perez@email.com"
+              $ref: '#/components/schemas/CustomerRequest'
       responses:
         '200':
           description: Cliente creado exitosamente
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerResponseDTO'
+                $ref: '#/components/schemas/CustomerResponse'
         '400':
-          description: Error de validación o DNI ya existe
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Conflicto - DNI ya existe
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-        - Customers
+          description: Error de validación o DNI duplicado
+        '500':
+          description: Error interno del servidor
 
     get:
+      tags: [Customers]
       summary: Obtener todos los clientes
-      description: Retorna una lista de todos los clientes registrados
       responses:
         '200':
           description: Lista de clientes obtenida exitosamente
@@ -64,218 +46,157 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CustomerResponseDTO'
-        '500':
-          description: Error interno del servidor
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-        - Customers
+                  $ref: '#/components/schemas/CustomerResponse'
 
   /customers/{id}:
     get:
-      summary: Obtener cliente por ID
-      description: Retorna un cliente específico basado en su ID
+      tags: [Customers]
+      summary: Obtener un cliente por ID
       parameters:
         - name: id
           in: path
           required: true
-          description: ID único del cliente
           schema:
             type: string
-            example: "550e8400-e29b-41d4-a716-446655440000"
+            format: uuid
       responses:
         '200':
           description: Cliente encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerResponseDTO'
+                $ref: '#/components/schemas/CustomerResponse'
         '404':
           description: Cliente no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-        - Customers
 
     put:
-      summary: Actualizar cliente existente
-      description: Actualiza la información de un cliente existente
+      tags: [Customers]
+      summary: Actualizar un cliente existente
       parameters:
         - name: id
           in: path
           required: true
-          description: ID único del cliente a actualizar
           schema:
             type: string
-            example: "550e8400-e29b-41d4-a716-446655440000"
+            format: uuid
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomerRequestDTO'
-            examples:
-              example1:
-                value:
-                  name: "Juan"
-                  lastname: "Pérez González"
-                  dni: "12345678A"
-                  email: "juan.perez.nuevo@email.com"
+              $ref: '#/components/schemas/CustomerRequest'
       responses:
         '200':
           description: Cliente actualizado exitosamente
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerResponseDTO'
+                $ref: '#/components/schemas/CustomerResponse'
         '400':
-          description: Error de validación
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Error de validación o DNI duplicado
         '404':
           description: Cliente no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Conflicto - DNI ya existe
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-        - Customers
 
     delete:
-      summary: Eliminar cliente
-      description: Elimina un cliente existente del sistema
+      tags: [Customers]
+      summary: Eliminar un cliente
       parameters:
         - name: id
           in: path
           required: true
-          description: ID único del cliente a eliminar
           schema:
             type: string
-            example: "550e8400-e29b-41d4-a716-446655440000"
+            format: uuid
       responses:
         '204':
-          description: Cliente eliminado exitosamente (no content)
+          description: Cliente eliminado exitosamente
+        '400':
+          description: No se puede eliminar - tiene cuentas activas
         '404':
           description: Cliente no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-        - Customers
 
 components:
   schemas:
-    CustomerRequestDTO:
+    CustomerRequest:
       type: object
       required:
         - name
         - lastname
         - dni
         - email
+        - registeredDate
       properties:
         name:
           type: string
-          description: Nombre del cliente
-          example: "Juan"
-          minLength: 2
-          maxLength: 50
+          maxLength: 100
+          example: Juan
         lastname:
           type: string
-          description: Apellido del cliente
-          example: "Pérez"
-          minLength: 2
-          maxLength: 50
+          maxLength: 100
+          example: Pérez
         dni:
           type: string
-          description: Número de identificación único
-          example: "12345678A"
-          pattern: "^[0-9]{8}[A-Za-z]$"
+          pattern: '^\d{8}$'
+          example: "12345678"
         email:
           type: string
           format: email
-          description: Correo electrónico del cliente
-          example: "juan.perez@email.com"
-          maxLength: 100
+          example: juan.perez@email.com
+        registeredDate:
+          type: string
+          format: date
+          example: "2023-10-15"
 
-    CustomerResponseDTO:
+    CustomerResponse:
       type: object
       properties:
         id:
           type: string
-          description: ID único del cliente
-          example: "550e8400-e29b-41d4-a716-446655440000"
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
         name:
           type: string
-          description: Nombre del cliente
-          example: "Juan"
-        lastname:
+          example: Juan
+        lastName:
           type: string
-          description: Apellido del cliente
-          example: "Pérez"
+          example: Pérez
         dni:
           type: string
-          description: Número de identificación único
-          example: "12345678A"
+          example: "12345678"
         email:
           type: string
-          format: email
-          description: Correo electrónico del cliente
-          example: "juan.perez@email.com"
-        createdAt:
-          type: string
-          format: date-time
-          description: Fecha de creación del registro
-          example: "2024-01-15T10:30:00Z"
+          example: juan.perez@email.com
 
-    ErrorResponse:
-      type: object
-      properties:
-        timestamp:
-          type: string
-          format: date-time
-          description: Marca de tiempo del error
-          example: "2024-01-15T10:30:00Z"
-        status:
-          type: integer
-          description: Código de estado HTTP
-          example: 404
-        error:
-          type: string
-          description: Tipo de error
-          example: "Not Found"
-        message:
-          type: string
-          description: Mensaje descriptivo del error
-          example: "Cliente no encontrado con ID: 550e8400-e29b-41d4-a716-446655440000"
-        path:
-          type: string
-          description: Ruta del endpoint que causó el error
-          example: "/customers/550e8400-e29b-41d4-a716-446655440000"
+  responses:
+    ValidationError:
+      description: Error de validación
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              fieldName:
+                type: string
+                example: "El campo 'dni' debe tener 8 dígitos"
 
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWT token authentication
+    DniAlreadyExists:
+      description: DNI ya existe
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "El DNI ya existe"
 
-security:
-  - bearerAuth: [ ]
-
-tags:
-  - name: Customers
-    description: Operaciones relacionadas con la gestión de clientes
+    CustomerNotFound:
+      description: Cliente no encontrado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Cliente no encontrado"
