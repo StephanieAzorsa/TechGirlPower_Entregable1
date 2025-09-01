@@ -2,6 +2,7 @@ package com.nttdata.accountservice.service;
 
 import com.nttdata.accountservice.dto.AccountRequestDTO;
 import com.nttdata.accountservice.dto.AccountResponseDTO;
+import com.nttdata.accountservice.exception.AccountNotFoundException;
 import com.nttdata.accountservice.mapper.AccountMapper;
 import com.nttdata.accountservice.model.Account;
 import com.nttdata.accountservice.repository.AccountRepository;
@@ -27,6 +28,13 @@ public class AccountService {
         return accounts.stream()
                 .map(AccountMapper::toDTO)
                 .toList();
+    }
+
+    public AccountResponseDTO getAccountById(String id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException("Cuenta no encontrada con ID: " + id));
+
+        return AccountMapper.toDTO(account);
     }
 
     public AccountResponseDTO createAccount(AccountRequestDTO accountRequestDTO) {
