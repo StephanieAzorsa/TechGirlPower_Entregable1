@@ -2,24 +2,30 @@ package com.nttdata.customerservice.service;
 
 import com.nttdata.customerservice.dto.CustomerRequestDTO;
 import com.nttdata.customerservice.dto.CustomerResponseDTO;
+import com.nttdata.customerservice.exception.CustomerHasActiveAccountsException;
 import com.nttdata.customerservice.exception.CustomerNotFoundException;
 import com.nttdata.customerservice.exception.DniAlreadyExistsException;
 import com.nttdata.customerservice.mapper.CustomerMapper;
 import com.nttdata.customerservice.model.Customer;
 import com.nttdata.customerservice.repository.CustomerRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Service
 public class CustomerService {
-    //Inyeccion de dependecia
-    private final CustomerRepository customerRepository;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    private final CustomerRepository customerRepository;
+    private final RestTemplate restTemplate;
+
+    public CustomerService(CustomerRepository customerRepository, RestTemplate restTemplate) {
         this.customerRepository = customerRepository;
+        this.restTemplate = restTemplate;
     }
 
     public List<CustomerResponseDTO> getCustomers() {
@@ -69,7 +75,26 @@ public class CustomerService {
     }
 
     public void deleteCustomer(String id) {
-        customerRepository.deleteById(id);
+        String accountsServiceUrl = "http://account-service/api/v1/accounts/customer/" + id;
+
+        try {
+            ResponseEntity<List> response = restTemplate
+                    .getForEntity(accountsServiceUrl, List.class);
+
+            if (response.getStatusCode().is2xxSuccessful() &&
+                    response.getBody() != null &&
+                    !response.getBody().isEmpty()) {
+                throw new CustomerHasActiveAccountsException("No se puede eliminar el " +
+                        "cliente porque tiene cuentas activas");
+            }
+            customerRepository.deleteById(id);
+
+        } catch (HttpClientErrorException.NotFound ex) {
+            customerRepository.deleteById(id);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error al verificar cuentas del cliente: " + ex.getMessage());
+        }
     }
 
 }
