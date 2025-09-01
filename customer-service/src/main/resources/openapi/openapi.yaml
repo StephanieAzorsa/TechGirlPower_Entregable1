@@ -1,0 +1,281 @@
+openapi: 3.0.3
+info:
+  title: Customer Management API
+  version: 1.0.0
+  description: API para gestión de clientes
+  contact:
+    name: Equipo de Desarrollo
+    email: desarrollo@empresa.com
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor local de desarrollo
+  - url: https://api.customer-service
+    description: Servidor de producción
+
+paths:
+  /customers:
+    post:
+      summary: Crear un nuevo cliente
+      description: Crea un nuevo cliente en el sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequestDTO'
+            examples:
+              example1:
+                value:
+                  name: "Juan"
+                  lastname: "Pérez"
+                  dni: "12345678A"
+                  email: "juan.perez@email.com"
+      responses:
+        '200':
+          description: Cliente creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponseDTO'
+        '400':
+          description: Error de validación o DNI ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflicto - DNI ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Customers
+
+    get:
+      summary: Obtener todos los clientes
+      description: Retorna una lista de todos los clientes registrados
+      responses:
+        '200':
+          description: Lista de clientes obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerResponseDTO'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Customers
+
+  /customers/{id}:
+    get:
+      summary: Obtener cliente por ID
+      description: Retorna un cliente específico basado en su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del cliente
+          schema:
+            type: string
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponseDTO'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Customers
+
+    put:
+      summary: Actualizar cliente existente
+      description: Actualiza la información de un cliente existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del cliente a actualizar
+          schema:
+            type: string
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequestDTO'
+            examples:
+              example1:
+                value:
+                  name: "Juan"
+                  lastname: "Pérez González"
+                  dni: "12345678A"
+                  email: "juan.perez.nuevo@email.com"
+      responses:
+        '200':
+          description: Cliente actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponseDTO'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflicto - DNI ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Customers
+
+    delete:
+      summary: Eliminar cliente
+      description: Elimina un cliente existente del sistema
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del cliente a eliminar
+          schema:
+            type: string
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '204':
+          description: Cliente eliminado exitosamente (no content)
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Customers
+
+components:
+  schemas:
+    CustomerRequestDTO:
+      type: object
+      required:
+        - name
+        - lastname
+        - dni
+        - email
+      properties:
+        name:
+          type: string
+          description: Nombre del cliente
+          example: "Juan"
+          minLength: 2
+          maxLength: 50
+        lastname:
+          type: string
+          description: Apellido del cliente
+          example: "Pérez"
+          minLength: 2
+          maxLength: 50
+        dni:
+          type: string
+          description: Número de identificación único
+          example: "12345678A"
+          pattern: "^[0-9]{8}[A-Za-z]$"
+        email:
+          type: string
+          format: email
+          description: Correo electrónico del cliente
+          example: "juan.perez@email.com"
+          maxLength: 100
+
+    CustomerResponseDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del cliente
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          description: Nombre del cliente
+          example: "Juan"
+        lastname:
+          type: string
+          description: Apellido del cliente
+          example: "Pérez"
+        dni:
+          type: string
+          description: Número de identificación único
+          example: "12345678A"
+        email:
+          type: string
+          format: email
+          description: Correo electrónico del cliente
+          example: "juan.perez@email.com"
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación del registro
+          example: "2024-01-15T10:30:00Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Marca de tiempo del error
+          example: "2024-01-15T10:30:00Z"
+        status:
+          type: integer
+          description: Código de estado HTTP
+          example: 404
+        error:
+          type: string
+          description: Tipo de error
+          example: "Not Found"
+        message:
+          type: string
+          description: Mensaje descriptivo del error
+          example: "Cliente no encontrado con ID: 550e8400-e29b-41d4-a716-446655440000"
+        path:
+          type: string
+          description: Ruta del endpoint que causó el error
+          example: "/customers/550e8400-e29b-41d4-a716-446655440000"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token authentication
+
+security:
+  - bearerAuth: [ ]
+
+tags:
+  - name: Customers
+    description: Operaciones relacionadas con la gestión de clientes
