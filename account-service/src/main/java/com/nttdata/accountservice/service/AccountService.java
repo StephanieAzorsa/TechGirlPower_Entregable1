@@ -37,6 +37,13 @@ public class AccountService {
         return AccountMapper.toDTO(account);
     }
 
+    public List<AccountResponseDTO> getAccountsByCustomerId(String customerId) {
+        List<Account> accounts = accountRepository.findByCustomerId(customerId);
+        return accounts.stream()
+                .map(AccountMapper::toDTO)
+                .toList();
+    }
+
     public AccountResponseDTO createAccount(AccountRequestDTO accountRequestDTO) {
         String customerServiceUrl = "http://localhost:4000/api/v1/customers/" + accountRequestDTO.getCustomerId();
 

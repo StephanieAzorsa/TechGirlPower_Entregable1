@@ -31,6 +31,16 @@ public class AccountController {
         return ResponseEntity.ok(account);
     }
 
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<AccountResponseDTO>> getAccountsByCustomerId(
+            @PathVariable String customerId) {
+
+        List<AccountResponseDTO> accounts = accountService
+                .getAccountsByCustomerId(customerId);
+
+        return ResponseEntity.ok(accounts);
+    }
+
     @PostMapping
     public ResponseEntity<AccountResponseDTO> createAccount(
             @Valid
