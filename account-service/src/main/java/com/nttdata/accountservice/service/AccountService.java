@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 public class AccountService {
     private final AccountRepository accountRepository;
@@ -18,6 +20,13 @@ public class AccountService {
     public AccountService(AccountRepository accountRepository, RestTemplate restTemplate) {
         this.accountRepository = accountRepository;
         this.restTemplate = restTemplate;
+    }
+
+    public List<AccountResponseDTO> getAllAccounts() {
+        List<Account> accounts = accountRepository.findAll();
+        return accounts.stream()
+                .map(AccountMapper::toDTO)
+                .toList();
     }
 
     public AccountResponseDTO createAccount(AccountRequestDTO accountRequestDTO) {

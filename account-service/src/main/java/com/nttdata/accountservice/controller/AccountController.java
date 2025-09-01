@@ -5,10 +5,9 @@ import com.nttdata.accountservice.dto.AccountResponseDTO;
 import com.nttdata.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -20,6 +19,11 @@ public class AccountController {
         this.accountService = accountService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<AccountResponseDTO>> getAllAccounts() {
+        List<AccountResponseDTO> accounts = accountService.getAllAccounts();
+        return ResponseEntity.ok(accounts);
+    }
 
     @PostMapping
     public ResponseEntity<AccountResponseDTO> createAccount(
