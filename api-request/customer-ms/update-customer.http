@@ -1,0 +1,12 @@
+### Updates an existing customer entity
+PUT http://localhost:8082/api/v1/customers/123e4567-e89b-12d3-a456-426614174000
+Content-Type: application/json
+
+{
+  "name": "Mario Udate",
+  "lastname": "La Rosa",
+  "dni": "11111111",
+  "email": "mario.larosa@example.com"
+}
+
+###

@@ -1,0 +1,12 @@
+### Create a new bank account
+
+POST http://localhost:8082/api/v1/accounts
+Content-Type: application/json
+
+{
+  "accountType": "CORRIENTE",
+  "customerId": "c0a86301-9906-1e7a-8199-06d18f940000",
+  "initialBalance": 0.00
+}
+
+###

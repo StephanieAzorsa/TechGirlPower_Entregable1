@@ -1,0 +1,267 @@
+openapi: 3.0.1
+info:
+  title: Account Service API
+  description: Microservicio para gestión de cuentas bancarias
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:4002
+    description: Servidor de desarrollo
+
+tags:
+  - name: Accounts
+    description: Operaciones relacionadas con cuentas bancarias
+
+paths:
+  /accounts:
+    post:
+      tags: [Accounts]
+      summary: Crear una nueva cuenta bancaria
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+      responses:
+        '200':
+          description: Cuenta creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '400':
+          description: Error de validación o cliente no existe
+        '500':
+          description: Error interno del servidor
+
+    get:
+      tags: [Accounts]
+      summary: Obtener todas las cuentas
+      responses:
+        '200':
+          description: Lista de cuentas obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponse'
+
+  /accounts/{id}:
+    get:
+      tags: [Accounts]
+      summary: Obtener una cuenta por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cuenta encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '404':
+          description: Cuenta no encontrada
+
+    delete:
+      tags: [Accounts]
+      summary: Eliminar una cuenta
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Cuenta eliminada exitosamente
+        '404':
+          description: Cuenta no encontrada
+
+  /accounts/customer/{customerId}:
+    get:
+      tags: [Accounts]
+      summary: Obtener cuentas por cliente
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cuentas del cliente obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponse'
+        '404':
+          description: Cliente no encontrado
+
+  /accounts/{accountId}/deposit:
+    put:
+      tags: [Accounts]
+      summary: Realizar un depósito en una cuenta
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '200':
+          description: Depósito realizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '400':
+          description: Monto inválido
+        '404':
+          description: Cuenta no encontrada
+
+  /accounts/{accountId}/withdraw:
+    put:
+      tags: [Accounts]
+      summary: Realizar un retiro de una cuenta
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '200':
+          description: Retiro realizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '400':
+          description: Saldo insuficiente o monto inválido
+        '404':
+          description: Cuenta no encontrada
+
+components:
+  schemas:
+    AccountRequest:
+      type: object
+      required:
+        - accountType
+        - customerId
+      properties:
+        accountType:
+          type: string
+          enum: [AHORROS, CORRIENTE]
+          example: AHORROS
+        customerId:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        initialBalance:
+          type: number
+          format: double
+          minimum: 0
+          example: 100.50
+
+    AccountResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        accountNumber:
+          type: string
+          example: "1000000001"
+        balance:
+          type: number
+          format: double
+          example: 1500.75
+        accountType:
+          type: string
+          example: AHORROS
+        customerId:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+
+    TransactionRequest:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 50.75
+
+  responses:
+    ValidationError:
+      description: Error de validación
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              fieldName:
+                type: string
+                example: "El campo 'amount' debe ser mayor a 0"
+
+    AccountNotFound:
+      description: Cuenta no encontrada
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Cuenta no encontrada"
+
+    InsufficientBalance:
+      description: Saldo insuficiente
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Saldo insuficiente para realizar el retiro"
+
+    CustomerNotFound:
+      description: Cliente no encontrado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "El cliente no existe"

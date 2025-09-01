@@ -1,0 +1,4 @@
+### Delete an entity
+DELETE http://localhost:8082/api/v1/customers/123e4567-e89b-12d3-a456-426614174000
+
+###

@@ -1,0 +1,202 @@
+openapi: 3.0.1
+info:
+  title: Customer Service API
+  description: Microservicio para gestión de clientes bancarios
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:4000
+    description: Servidor de desarrollo
+
+tags:
+  - name: Customers
+    description: Operaciones relacionadas con clientes
+
+paths:
+  /customers:
+    post:
+      tags: [Customers]
+      summary: Crear un nuevo cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      responses:
+        '200':
+          description: Cliente creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          description: Error de validación o DNI duplicado
+        '500':
+          description: Error interno del servidor
+
+    get:
+      tags: [Customers]
+      summary: Obtener todos los clientes
+      responses:
+        '200':
+          description: Lista de clientes obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerResponse'
+
+  /customers/{id}:
+    get:
+      tags: [Customers]
+      summary: Obtener un cliente por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '404':
+          description: Cliente no encontrado
+
+    put:
+      tags: [Customers]
+      summary: Actualizar un cliente existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      responses:
+        '200':
+          description: Cliente actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          description: Error de validación o DNI duplicado
+        '404':
+          description: Cliente no encontrado
+
+    delete:
+      tags: [Customers]
+      summary: Eliminar un cliente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Cliente eliminado exitosamente
+        '400':
+          description: No se puede eliminar - tiene cuentas activas
+        '404':
+          description: Cliente no encontrado
+
+components:
+  schemas:
+    CustomerRequest:
+      type: object
+      required:
+        - name
+        - lastname
+        - dni
+        - email
+        - registeredDate
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: Juan
+        lastname:
+          type: string
+          maxLength: 100
+          example: Pérez
+        dni:
+          type: string
+          pattern: '^\d{8}$'
+          example: "12345678"
+        email:
+          type: string
+          format: email
+          example: juan.perez@email.com
+        registeredDate:
+          type: string
+          format: date
+          example: "2023-10-15"
+
+    CustomerResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          type: string
+          example: Juan
+        lastName:
+          type: string
+          example: Pérez
+        dni:
+          type: string
+          example: "12345678"
+        email:
+          type: string
+          example: juan.perez@email.com
+
+  responses:
+    ValidationError:
+      description: Error de validación
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              fieldName:
+                type: string
+                example: "El campo 'dni' debe tener 8 dígitos"
+
+    DniAlreadyExists:
+      description: DNI ya existe
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "El DNI ya existe"
+
+    CustomerNotFound:
+      description: Cliente no encontrado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Cliente no encontrado"

@@ -44,7 +44,7 @@ calidad y buenas prácticas de programación.
 | 2          | Spring Boot, Spring Cloud, JPA/Hibernate, MySQL, OpenAPI | Microservicios |
 | 3          | Por definir                                              | Por definir    |
 
-### 📊 Descripción de Ramas
+## 📊 Descripción de Ramas
 
 | Rama         | Propósito                                                     |
 |--------------|---------------------------------------------------------------|
@@ -56,7 +56,7 @@ calidad y buenas prácticas de programación.
 | Entregable-2 | Versión entregada del Proyecto II (Spring Boot Microservices) |
 | Entregable-3 | Próximo entregable en desarrollo                              |
 
-### 👥 Colaboradoras
+## 👥 Colaboradoras
 
 | Nombre           | GitHub                                                                                                                            |
 |------------------|-----------------------------------------------------------------------------------------------------------------------------------|
