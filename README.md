@@ -10,51 +10,27 @@ bancarias y transacciones financieras. A través de una serie de etapas, cada un
 diseño orientado a objetos, arquitectura basada en microservicios, bases de datos relacionales y no relacionales, desarrollo reactivo, aseguramiento de la
 calidad y buenas prácticas de programación.
 
-## 🚀 Entregables
-
-### 🔹 Entregable-1: Java Core + MySQL
-
-- **Tecnologías**: Java 8/11, MySQL, POO
-- **Arquitectura**: Aplicación monolítica
-- **Funcionalidades**:
-    - Registro de clientes con validación de DNI y email
-    - Apertura de cuentas (Ahorros/Corrientes)
-    - Operaciones bancarias (depósitos, retiros, consulta de saldo)
-    - Validaciones de negocio y persistencia en memoria/MySQL
-
-### 🔹 Entregable-2: Spring Boot + Microservicios
-
-- **Tecnologías**: Spring Boot, Spring Cloud, JPA/Hibernate, MySQL, OpenAPI
-- **Arquitectura**: Microservicios (CustomerMs, AccountMs)
-- **Funcionalidades**:
-    - CRUD completo de clientes y cuentas
-    - API REST documentada con OpenAPI
-    - Comunicación entre microservicios
-    - Persistencia con JPA/Hibernate
-
-### 🔹 Entregable 3: [Próximamente]
-
-- Por definir
-
 ## 🛠 Stack Tecnológico por Entregable
 
-| Entregable | Tecnologías                                              | Arquitectura   |
-|------------|----------------------------------------------------------|----------------|
-| 1          | Java 8/11, MySQL, UML                                    | Monolítica     |
-| 2          | Spring Boot, Spring Cloud, JPA/Hibernate, MySQL, OpenAPI | Microservicios |
-| 3          | Por definir                                              | Por definir    |
+| Entregable | Tecnologías                                                        | Arquitectura   |
+|------------|--------------------------------------------------------------------|----------------|
+| 1          | Java 8/11, MySQL, UML                                              | Monolítica     |
+| 2          | Spring Boot, Spring Cloud, Spring Data JPA, MySQL, OpenAPI         | Microservicios |
+| 3          | Spring Boot, Spring Webflux, Spring Data Reactive MongoDB, OpenAPI | Microservicios |
+| 4          | Por definir                                                        | Por definir    |
 
 ## 📊 Descripción de Ramas
 
-| Rama         | Propósito                                                     |
-|--------------|---------------------------------------------------------------|
-| master       | Versión estable en producción                                 | 
-| develop      | Integración para desarrollo activo                            |
-| feature/\*   | Desarrollo de nuevas funcionalidades                          |
-| hotfix/\*    | Correcciones urgentes                                         |
-| Entregable-1 | Versión entregada del Proyecto I (Java + MySQL)               |
-| Entregable-2 | Versión entregada del Proyecto II (Spring Boot Microservices) |
-| Entregable-3 | Próximo entregable en desarrollo                              |
+| Rama         | Propósito                                                   |
+|--------------|-------------------------------------------------------------|
+| master       | Versión estable en producción                               | 
+| develop      | Integración para desarrollo activo                          |
+| feature/\*   | Desarrollo de nuevas funcionalidades                        |
+| hotfix/\*    | Correcciones urgentes                                       |
+| Entregable-1 | Versión entregada del Proyecto I (Java + MySQL)             |
+| Entregable-2 | Versión entregada del Proyecto II (Microservices + MySQL)   |
+| Entregable-3 | Versión entregada del Proyecto III (Microservice + MongoDB) |
+| Entregable-4 | Por definir                                                 |            
 
 ## 👥 Colaboradoras
 
