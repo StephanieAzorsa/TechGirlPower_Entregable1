@@ -1,0 +1,11 @@
+###
+POST http://localhost:8082/api/v1/transactions/deposit
+Content-Type: application/json
+
+{
+  "accountId": "string",
+  "amount": 200.00
+}
+
+
+###

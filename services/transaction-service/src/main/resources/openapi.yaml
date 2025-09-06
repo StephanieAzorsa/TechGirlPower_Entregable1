@@ -1,0 +1,218 @@
+openapi: 3.0.3
+info:
+  title: SMicroservicio de Transacciones
+  description: API para gestión de transacciones bancarias
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+    description: Servidor de desarrollo
+
+paths:
+  /transactions/deposit:
+    post:
+      summary: Registrar un depósito
+      operationId: procesarDeposito
+      tags:
+        - Transacciones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequestDTO'
+      responses:
+        '201':
+          description: Depósito registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponseDTO'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cuenta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /transactions/withdraw:
+    post:
+      summary: Registrar un retiro
+      operationId: procesarRetiro
+      tags:
+        - Transacciones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequestDTO'
+      responses:
+        '201':
+          description: Retiro registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponseDTO'
+        '400':
+          description: Saldo insuficiente o datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cuenta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /transactions/transfer:
+    post:
+      summary: Registrar una transferencia
+      operationId: processTransfer
+      tags:
+        - Transferencia entre cuentas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequestDTO'
+      responses:
+        '201':
+          description: Transferencia registrada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponseDTO'
+        '400':
+          description: Saldo insuficiente o datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Una de las cuentas no fue encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /transactions/history:
+    get:
+      summary: Consultar historial de transacciones
+      operationId: obtenerHistorial
+      tags:
+        - Transacciones
+      responses:
+        '200':
+          description: Historial de transacciones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryResponse'
+
+components:
+  schemas:
+    TransactionRequestDTO:
+      type: object
+      required:
+        - accountId
+        - amount
+      properties:
+        accountId:
+          type: string
+          description: ID de la cuenta destino
+        amount:
+          type: number
+          format: double
+          minimum: 0.01
+          description: Monto a depositar
+
+    TransferRequestDTO:
+      type: object
+      required:
+        - sourceAccountId
+        - destinationAccountId
+        - amount
+      properties:
+        sourceAccountId:
+          type: string
+          description: ID de la cuenta origen
+        destinationAccountId:
+          type: string
+          description: ID de la cuenta destino
+        amount:
+          type: number
+          format: double
+          minimum: 0.01
+          description: Monto a transferir
+
+    TransactionResponseDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único de la transacción
+        type:
+          $ref: '#/components/schemas/TransaccionTipo'
+        amount:
+          type: number
+          format: double
+          description: Monto de la transacción
+        date:
+          type: string
+          format: date-time
+          description: Fecha y hora de la transacción
+        sourceAccountId:
+          type: string
+          format: uuid
+          description: ID de la cuenta origen
+        destinationAccountId:
+          type: string
+          format: uuid
+          description: ID de la cuenta destino (solo para transferencias)
+
+    HistoryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionResponseDTO'
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+        size:
+          type: integer
+        number:
+          type: integer
+
+    TransaccionTipo:
+      type: string
+      enum:
+        - DEPOSITO
+        - RETIRO
+        - TRANSFERENCIA
+
+    ErrorResponse:
+      type: object
+      properties:
+        codigo:
+          type: string
+          description: Error code
+        mensaje:
+          type: string
+          description: Error message
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
