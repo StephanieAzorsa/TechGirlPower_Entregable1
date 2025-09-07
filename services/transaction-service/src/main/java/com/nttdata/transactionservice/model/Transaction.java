@@ -2,15 +2,20 @@ package com.nttdata.transactionservice.model;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Document(collection = "transactions")
 public class Transaction {
 
@@ -22,7 +27,7 @@ public class Transaction {
 
     @NotNull
     @Positive
-    private Double amount;
+    private BigDecimal amount;
 
     @NotNull
     private LocalDate date;
@@ -31,4 +36,5 @@ public class Transaction {
     private String sourceAccountId;
 
     private String destinationAccountId;
+
 }

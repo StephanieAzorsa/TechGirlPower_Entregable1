@@ -3,17 +3,19 @@ package com.nttdata.transactionservice.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@Setter
+import java.math.BigDecimal;
+
+@Data
+@Builder
 public class TransactionRequestDTO {
-    @NotBlank
+    @NotBlank(message = "Account ID es requerido")
     private String accountId;
 
-    @NotNull
-    @Positive(message = "El monto debe ser positivo")
-    private Double monto;
+    @NotNull(message = "Monto es requerido")
+    @Positive(message = "Monto debe ser mayor a 0")
+    private BigDecimal amount;
 
 }
