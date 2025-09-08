@@ -1,4 +1,4 @@
-# 🏦 Sistema Bancario - Bootcamp Tech Girls Power
+# 🏦 Sistema Bancario - Bootcamp Tech Girls Power: Entregable 3
 
 Proyecto incremental de un sistema bancario desarrollado durante el bootcamp, evolucionando desde una aplicación monolítica en Java hasta una arquitectura de
 microservicios con Spring Boot.
@@ -10,34 +10,48 @@ bancarias y transacciones financieras. A través de una serie de etapas, cada un
 diseño orientado a objetos, arquitectura basada en microservicios, bases de datos relacionales y no relacionales, desarrollo reactivo, aseguramiento de la
 calidad y buenas prácticas de programación.
 
-## 🛠 Stack Tecnológico por Entregable
+## 🚀 Entregables
 
-| Entregable | Tecnologías                                                        | Arquitectura   |
-|------------|--------------------------------------------------------------------|----------------|
-| 1          | Java 8/11, MySQL, UML                                              | Monolítica     |
-| 2          | Spring Boot, Spring Cloud, Spring Data JPA, MySQL, OpenAPI         | Microservicios |
-| 3          | Spring Boot, Spring Webflux, Spring Data Reactive MongoDB, OpenAPI | Microservicios |
-| 4          | Por definir                                                        | Por definir    |
+### 🔹 Entregable-3: Spring WebFlux
 
-## 📊 Descripción de Ramas
+- **Tecnologías**: SpringWebFlux, MongoDB reactivo, Spring Validation, WebClient, Lombok, OpenAPI
+- **Arquitectura**: Microservicios (customer-service, account-service, transaction-service)
+- **Funcionalidades**:
+    - Registro y consulta de historial de transacciones (depósitos, retiros, transferencias)
+    - Consultar historial de transacciones
+    - OpenAPI [contract-first]
+    - Comunicación entre microservicios
 
-| Rama         | Propósito                                                   |
-|--------------|-------------------------------------------------------------|
-| master       | Versión estable en producción                               | 
-| develop      | Integración para desarrollo activo                          |
-| feature/\*   | Desarrollo de nuevas funcionalidades                        |
-| hotfix/\*    | Correcciones urgentes                                       |
-| Entregable-1 | Versión entregada del Proyecto I (Java + MySQL)             |
-| Entregable-2 | Versión entregada del Proyecto II (Microservices + MySQL)   |
-| Entregable-3 | Versión entregada del Proyecto III (Microservice + MongoDB) |
-| Entregable-4 | Por definir                                                 |            
+## 🏗️ Estructura del Proyecto
+
+```
+project-root/
+│
+├── api-request/
+│   └── account-ms            # Requests específicos para account-service
+│   └── customer-ms           # Requests específicos para customer-service
+│   └── transaction-ms        # Requests específicos para transaction-service
+│   └── postman               # Colección de Postman
+│
+├── documentation/            # Documentación del proyecto
+│   ├── Diagrama UML - Entregable 3.pdf
+│   └── Resultados del Postman.pdf
+│
+├── services/
+│   ├── customer-service/     # Microservicio de clientes
+│   ├── account-service/      # Microservicio de cuentas
+│   └── transaction-service/  # Microservicio de transacciones
+│   └── gateway/              # API Gateway
+│
+└── README.md
+```
 
 ## 👥 Colaboradoras
 
-| Nombre           | GitHub                                                                                                                            |
-|------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| Andrea Molina    | [![GitHub](https://img.shields.io/badge/GitHub-@Moliinaandy-pink?style=flat&logo=github)](https://github.com/Moliinaandy)         |
-| Angie Loa        | [![GitHub](https://img.shields.io/badge/GitHub-@AngieLoaPacora-pink?style=flat&logo=github)](https://github.com/AngieLoaPacora)   | 
-| Aracely Coronel  | [![GitHub](https://img.shields.io/badge/GitHub-@jaz123456789-pink?style=flat&logo=github)](https://github.com/jaz123456789)       | 
-| Stephanie Azorsa | [![GitHub](https://img.shields.io/badge/GitHub-@StephanieAzorsa-pink?style=flat&logo=github)](https://github.com/StephanieAzorsa) | 
+| Nombre           | GitHub                                                                                                                            | Rol                    | Contribución   |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------------|------------------------|----------------|
+| Angie Loa        | [![GitHub](https://img.shields.io/badge/GitHub-@AngieLoaPacora-pink?style=flat&logo=github)](https://github.com/AngieLoaPacora)   | Desarrolladora Backend | Depositar      |
+| Aracely Coronel  | [![GitHub](https://img.shields.io/badge/GitHub-@jaz123456789-pink?style=flat&logo=github)](https://github.com/jaz123456789)       | Desarrolladora Backend | Retirar        |
+| Stephanie Azorsa | [![GitHub](https://img.shields.io/badge/GitHub-@StephanieAzorsa-pink?style=flat&logo=github)](https://github.com/StephanieAzorsa) | Desarrolladora Backend | Transferencia  |
+| Andrea Molina    | [![GitHub](https://img.shields.io/badge/GitHub-@Moliinaandy-pink?style=flat&logo=github)](https://github.com/Moliinaandy)         | Desarrolladora Backend | Historial      |
 
