@@ -1,9 +1,9 @@
 ### POST  a deposit from an account
-POST http://localhost:8085/api/v1/transactions/deposit
+POST http://localhost:8082/api/v1/transactions/deposit
 Content-Type: application/json
 
 {
-  "accountId": "c0a86301-9927-1a1c-8199-270e3bff0000",
+  "accountId": "a1b2c3d4-e5f6-7890-1234-ef1234567890",
   "amount": 200.00
 }
 

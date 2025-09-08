@@ -4,9 +4,9 @@ POST http://localhost:8082/api/v1/transactions/transfer
 Content-Type: application/json
 
 {
-  "sourceAccountId": "ac13a001-9926-1a4f-8199-26ee08240000",
-  "destinationAccountId": "ac13a001-9926-1a4f-8199-26eea45e0001",
-  "amount": 100.00
+  "sourceAccountId": "a1b2c3d4-e5f6-7890-1234-ef1234567890",
+  "destinationAccountId": "a1b2c3d4-e5f6-7890-1234-ef1234567892",
+  "amount": 300.00
 }
 
 ###

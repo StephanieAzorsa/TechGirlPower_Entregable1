@@ -1,10 +1,10 @@
 ### POST a withdraw from an account
 
-POST http://localhost:8085/api/v1/transactions/withdraw
+POST http://localhost:8082/api/v1/transactions/withdraw
 Content-Type: application/json
 
 {
-  "accountId": "c0a80105-9926-109f-8199-26d158090000",
-  "amount": 50.50
+  "accountId": "a1b2c3d4-e5f6-7890-1234-ef1234567890",
+  "amount": 550.50
 }
 ###
