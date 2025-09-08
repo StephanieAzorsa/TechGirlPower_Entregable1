@@ -1,5 +1,5 @@
-### GET request to example server
-GET https://examples.http-client.intellij.net/get
-    ?generated-in=IntelliJ IDEA
+### GET all transaction records
+GET http://localhost:8085/api/v1/transactions/record
+
 
 ###
