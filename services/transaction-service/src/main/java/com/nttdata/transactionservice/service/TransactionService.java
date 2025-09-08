@@ -1,5 +1,6 @@
 package com.nttdata.transactionservice.service;
 
+import com.nttdata.transactionservice.client.Account;
 import com.nttdata.transactionservice.client.AccountWebClient;
 import com.nttdata.transactionservice.dto.*;
 import com.nttdata.transactionservice.exception.AccountNotFoundException;
@@ -45,6 +46,42 @@ public class TransactionService {
                                         .flatMap(transactionMapper::toDTO);
                             });
                 });
+    }
+
+    public Mono<TransactionResponseDTO> registerTransfer(TransferRequestDTO transferRequest) {
+
+        Mono<Account> withdrawBalance = accountWebClient
+                .withdrawBalanceAccount(createWithdrawRequest(transferRequest));
+
+        Mono<Account> depositBalance = withdrawBalance
+                .flatMap(account -> accountWebClient
+                        .depositBalanceAccount(createDepositRequest(transferRequest)));
+
+        Transaction transaction = Transaction.builder()
+                .transactionType(TransactionType.TRANSFERENCIA)
+                .amount(transferRequest.getAmount())
+                .date(LocalDateTime.now())
+                .sourceAccountId(transferRequest.getSourceAccountId())
+                .destinationAccountId(transferRequest.getDestinationAccountId())
+                .build();
+
+        return depositBalance
+                .flatMap(account -> transactionRepository.save(transaction))
+                .flatMap(transactionMapper::toDTO);
+    }
+
+    private TransactionRequestDTO createWithdrawRequest(TransferRequestDTO transferRequest) {
+        return TransactionRequestDTO.builder()
+                .accountId(transferRequest.getSourceAccountId())
+                .amount(transferRequest.getAmount())
+                .build();
+    }
+
+    private TransactionRequestDTO createDepositRequest(TransferRequestDTO transferRequest) {
+        return TransactionRequestDTO.builder()
+                .accountId(transferRequest.getDestinationAccountId())
+                .amount(transferRequest.getAmount())
+                .build();
     }
 
 }
