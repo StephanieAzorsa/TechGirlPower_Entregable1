@@ -12,6 +12,7 @@ import com.nttdata.transactionservice.model.TransactionType;
 import com.nttdata.transactionservice.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -25,6 +26,11 @@ public class TransactionService {
     private final AccountWebClient accountWebClient;
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
+
+    public Flux<TransactionResponseDTO> listTransactions() {
+        return transactionRepository.findAll()
+                .flatMap(transactionMapper::toDTO);
+    }
 
     public Mono<TransactionResponseDTO> registerDeposit(TransactionRequestDTO transactionRequest) {
 
