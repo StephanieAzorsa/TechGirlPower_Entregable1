@@ -1,5 +1,10 @@
-### GET request to example server
-GET https://examples.http-client.intellij.net/get
-    ?generated-in=IntelliJ IDEA
+### POST a withdraw from an account
 
+POST http://localhost:8085/api/v1/transactions/withdraw
+Content-Type: application/json
+
+{
+  "accountId": "c0a80105-9926-109f-8199-26d158090000",
+  "amount": 50.50
+}
 ###
