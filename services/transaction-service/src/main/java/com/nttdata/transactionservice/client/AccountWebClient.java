@@ -2,6 +2,7 @@ package com.nttdata.transactionservice.client;
 
 import com.nttdata.transactionservice.dto.TransactionRequestDTO;
 import com.nttdata.transactionservice.exception.AccountNotFoundException;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -21,6 +22,11 @@ public class AccountWebClient {
                 .uri("/{account}/deposit", transactionRequest.getAccountId())
                 .bodyValue(transactionRequest)
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("Error al realizar depósito en cuenta: "
+                                + transactionRequest.getAccountId())))
+                .onStatus(status -> status.is5xxServerError(),
+                        response -> Mono.error(new RuntimeException("Error del servidor al realizar depósito")))
                 .bodyToMono(Account.class);
     }
 
@@ -31,7 +37,8 @@ public class AccountWebClient {
                 .bodyValue(transactionRequest)
                 .retrieve()
                 .onStatus(status -> status.is4xxClientError(),
-                        response -> Mono.error(new RuntimeException("Error al realizar depósito en cuenta: " + transactionRequest.getAccountId())))
+                        response -> Mono.error(new RuntimeException("Error al realizar retiro en cuenta: "
+                                + transactionRequest.getAccountId())))
                 .onStatus(status -> status.is5xxServerError(),
                         response -> Mono.error(new RuntimeException("Error del servidor al realizar depósito")))
                 .bodyToMono(Account.class);
@@ -50,5 +57,7 @@ public class AccountWebClient {
                                 Mono.error(new RuntimeException("Error del servidor al obtener cuenta: " + accountId)))
                 .bodyToMono(Account.class);
     }
+
+
 
 }
