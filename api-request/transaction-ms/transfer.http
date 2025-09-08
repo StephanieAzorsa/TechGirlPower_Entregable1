@@ -1,0 +1,12 @@
+### GET request to example server
+
+POST http://localhost:8082/api/v1/transactions/transfer
+Content-Type: application/json
+
+{
+  "sourceAccountId": "a1b2c3d4-e5f6-7890-1234-ef1234567890",
+  "destinationAccountId": "a1b2c3d4-e5f6-7890-1234-ef1234567892",
+  "amount": 300.00
+}
+
+###

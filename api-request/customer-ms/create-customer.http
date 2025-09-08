@@ -3,10 +3,10 @@ POST http://localhost:8082/api/v1/customers
 Content-Type: application/json
 
 {
-  "name": "Stephanie",
-  "lastname": "Azorsa",
-  "dni": "12345678",
-  "email": "steph.azor@gmail.com",
+  "name": "Test",
+  "lastname": "Test",
+  "dni": "44444444",
+  "email": "test.test@example.com",
   "registeredDate": "2025-08-28"
 }
 
