@@ -1,10 +1,27 @@
 package com.nttdata.transactionservice.controller;
 
+import com.nttdata.transactionservice.dto.TransactionRequestDTO;
+import com.nttdata.transactionservice.dto.TransactionResponseDTO;
+import com.nttdata.transactionservice.service.TransactionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
+@RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
-public class TransactionController  {
+public class TransactionController {
+
+    private final TransactionService transactionService;
+
+    @PostMapping("/withdraw")
+    public Mono<ResponseEntity<TransactionResponseDTO>> registerWithdraw(
+            @Validated @RequestBody TransactionRequestDTO request) {
+        return transactionService.registerWithdrawal(request)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.badRequest().build());
+    }
 
 }
