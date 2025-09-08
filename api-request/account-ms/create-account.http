@@ -4,9 +4,9 @@ POST http://localhost:8082/api/v1/accounts
 Content-Type: application/json
 
 {
-  "accountType": "CORRIENTE",
-  "customerId": "c0a86301-9906-1e7a-8199-06d18f940000",
-  "initialBalance": 0.00
+  "accountType": "AHORROS",
+  "customerId": "123e4567-e89b-12d3-a456-426614174003",
+  "initialBalance": 100.00
 }
 
 ###
