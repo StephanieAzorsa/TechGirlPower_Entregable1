@@ -1,5 +1,12 @@
 ### GET request to example server
-GET https://examples.http-client.intellij.net/get
-    ?generated-in=IntelliJ IDEA
+
+POST http://localhost:8082/api/v1/transactions/transfer
+Content-Type: application/json
+
+{
+  "sourceAccountId": "ac13a001-9926-1a4f-8199-26ee08240000",
+  "destinationAccountId": "ac13a001-9926-1a4f-8199-26eea45e0001",
+  "amount": 100.00
+}
 
 ###
