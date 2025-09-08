@@ -20,6 +20,16 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
+    @PostMapping("/deposit")
+    public Mono<ResponseEntity<TransactionResponseDTO>> registerDeposit(
+            @Validated @RequestBody TransactionRequestDTO transactionRequest) {
+
+        return transactionService.registerDeposit(transactionRequest)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.badRequest().build());
+    }
+
+
     @PostMapping("/withdraw")
     public Mono<ResponseEntity<TransactionResponseDTO>> registerWithdraw(
             @Validated @RequestBody TransactionRequestDTO request) {

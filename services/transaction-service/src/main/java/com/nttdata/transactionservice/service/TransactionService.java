@@ -5,6 +5,7 @@ import com.nttdata.transactionservice.client.AccountWebClient;
 import com.nttdata.transactionservice.dto.*;
 import com.nttdata.transactionservice.exception.AccountNotFoundException;
 import com.nttdata.transactionservice.exception.InsufficientBalanceException;
+import com.nttdata.transactionservice.exception.TransactionExecutionException;
 import com.nttdata.transactionservice.mapper.TransactionMapper;
 import com.nttdata.transactionservice.model.Transaction;
 import com.nttdata.transactionservice.model.TransactionType;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,6 +26,30 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
 
+    public Mono<TransactionResponseDTO> registerDeposit(TransactionRequestDTO transactionRequest) {
+
+        return accountWebClient
+                .getAccountById(transactionRequest.getAccountId())
+                .switchIfEmpty(Mono
+                        .error(new AccountNotFoundException("Cuenta no encontrada: "
+                                + transactionRequest.getAccountId())))
+                .flatMap(account -> accountWebClient.depositBalanceAccount(transactionRequest))
+                .flatMap(account -> {
+                    Transaction transaction = Transaction.builder()
+                            .transactionType(TransactionType.DEPOSITO)
+                            .amount(transactionRequest.getAmount())
+                            .date(LocalDateTime.now())
+                            .sourceAccountId(transactionRequest.getAccountId())
+                            .build();
+                    return transactionRepository.save(transaction);
+                })
+                .flatMap(transactionMapper::toDTO)
+                .onErrorResume(throwable -> {
+                    if (throwable instanceof AccountNotFoundException)
+                        return Mono.error(throwable);
+                    return Mono.error(new TransactionExecutionException("Error al registrar depósito"));
+                });
+    }
 
     public Mono<TransactionResponseDTO> registerWithdrawal(TransactionRequestDTO request) {
         return accountWebClient.getAccountById(request.getAccountId())
