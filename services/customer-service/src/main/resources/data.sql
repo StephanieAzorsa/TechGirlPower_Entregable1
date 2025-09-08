@@ -10,44 +10,44 @@ CREATE TABLE IF NOT EXISTS customers
 
 INSERT INTO customers (id, name, last_name, dni, email, registered_date)
 SELECT '123e4567-e89b-12d3-a456-426614174000',
-       'Mario',
-       'La Rosa',
-       '11111111',
-       'mario.larosa@example.com',
-       '2025-08-21'
+       'Stephanie',
+       'Azorsa',
+       '12345678',
+       'stephanie.azorsa@example.com',
+       '2025-09-08'
 WHERE NOT EXISTS (SELECT 1
                   FROM customers
                   WHERE id = '123e4567-e89b-12d3-a456-426614174000');
 
 INSERT INTO customers (id, name, last_name, dni, email, registered_date)
 SELECT '123e4567-e89b-12d3-a456-426614174001',
-       'Maria',
-       'Salazar',
-       '87654321',
-       'maria.salazar@example.com',
-       '2025-08-21'
+       'Andrea',
+       'Molina',
+       '11111111',
+       'andrea.molina@example.com',
+       '2025-09-08'
 WHERE NOT EXISTS (SELECT 1
                   FROM customers
                   WHERE id = '123e4567-e89b-12d3-a456-426614174001');
 
 INSERT INTO customers (id, name, last_name, dni, email, registered_date)
 SELECT '123e4567-e89b-12d3-a456-426614174002',
-       'Mirian',
-       'Ore',
-       '25478523',
-       'mirian.ore@example.com',
-       '2025-08-21'
+       'Angie',
+       'Lona',
+       '22222222',
+       'angie.loa@example.com',
+       '2025-09-08'
 WHERE NOT EXISTS (SELECT 1
                   FROM customers
                   WHERE id = '123e4567-e89b-12d3-a456-426614174002');
 
 INSERT INTO customers (id, name, last_name, dni, email, registered_date)
 SELECT '123e4567-e89b-12d3-a456-426614174003',
-       'Karen',
-       'Paredes',
-       '74526341',
-       'karen.paredes@example.com',
-       '2025-08-21'
+       'Aracely',
+       'Coronel',
+       '33333333',
+       'aracely.coronel@example.com',
+       '2025-09-08'
 WHERE NOT EXISTS (SELECT 1
                   FROM customers
                   WHERE id = '123e4567-e89b-12d3-a456-426614174003');
