@@ -7,4 +7,4 @@ spring:
       database: transaction_db
 
 server:
-  port: 8085
+  port: 4003
