@@ -12,7 +12,7 @@ public class GlobalExceptionHandlerTest {
 
     private final GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
 
-    // CustomerNotFoundException: Retorna 400 con mensaje apropiado
+    // CP-AS32: CustomerNotFoundException [Retorna 400 con mensaje apropiado]
     @Test
     void handleCustomerNotFoundException_ShouldReturnErrorMessage() {
         // Arrange (Organizar/Preparar)
@@ -35,7 +35,7 @@ public class GlobalExceptionHandlerTest {
         assertEquals("Cliente no encontrado", response.getBody().get("message"));
     }
 
-    // InsufficientBalanceException: Retorna 400 con mensaje apropiado
+    // CP-AS33: InsufficientBalanceException [Retorna 400 con mensaje apropiado]
     @Test
     void handleInsufficientBalanceException_ShouldReturnErrorMessage() {
         // Arrange
