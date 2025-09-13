@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
 
-    private final AccountServiceImpl accountService;
+    private final AccountServiceImpl  accountService;
 
     @GetMapping
     public ResponseEntity<List<AccountResponseDTO>> getAllAccounts() {
