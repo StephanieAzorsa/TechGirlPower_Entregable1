@@ -3,22 +3,20 @@ package com.nttdata.accountservice.controller;
 import com.nttdata.accountservice.dto.AccountRequestDTO;
 import com.nttdata.accountservice.dto.AccountResponseDTO;
 import com.nttdata.accountservice.dto.TransactionRequestDTO;
-import com.nttdata.accountservice.service.AccountService;
+import com.nttdata.accountservice.service.impl.AccountServiceImpl;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
 
-    private final AccountService accountService;
-
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
-    }
+    private final AccountServiceImpl accountService;
 
     @GetMapping
     public ResponseEntity<List<AccountResponseDTO>> getAllAccounts() {
