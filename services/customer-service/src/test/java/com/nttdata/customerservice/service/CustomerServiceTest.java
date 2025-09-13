@@ -21,7 +21,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerServiceTest {
@@ -57,7 +56,7 @@ class CustomerServiceTest {
         // Simulamos que el repositorio devuelve esa lista
         when(customerRepository.findAll()).thenReturn(mockCustomers);
 
-        // Act: llamamos al servicio ejecutandolo
+        // Act: llamamos al servicio ejecutándolo
         List<CustomerResponseDTO> result = customerService.getCustomers();
 
         // Assert: verificamos que el resultado no sea nulo tenga los datos esperados   // assert tru o false
@@ -74,7 +73,7 @@ class CustomerServiceTest {
 
     // CP-CS02: Retorna lista vacía cuando no hay clientes
     @Test
-    //arrange: Simulamos que el repositorio devuelve lista vacia
+    //arrange: Simulamos que el repositorio devuelve lista vacía
     void getCustomers_returnEmptyList_whenNoCustomerFoundExist() {
         when(customerRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -124,7 +123,8 @@ class CustomerServiceTest {
         String id = "452";
         when(customerRepository.findById(id)).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> customerService.getCustomerById(id));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> customerService.getCustomerById(id));
 
         assertNotNull(exception.getReason());
         assertTrue(exception.getReason().contains("Cliente no encontrado con ID: 452"));
@@ -216,19 +216,21 @@ class CustomerServiceTest {
 
         // Arrange: simulamos que no hay duplicado
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
-        when(customerRepository.existsByDniAndIdNot("10203040", customerId)).thenReturn(false);
-        when(customerRepository.save(any(Customer.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(customerRepository.existsByDniAndIdNot("10203040", customerId))
+                .thenReturn(false);
+        when(customerRepository.save(any(Customer.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
-// Act
+        // Act
         CustomerResponseDTO result = customerService.updateCustomer(customerId, updateDto);
 
-// Assert
+        // Assert
         assertNotNull(result, "La respuesta no debe ser nula");
         assertEquals("Pepito P. Actualizado", result.getName());
         assertEquals("10203040", result.getDni());
         assertEquals("pepito_pedraza@gmail.com", result.getEmail());
 
-// Verify: métodos correctos
+        // Verify: métodos correctos
         verify(customerRepository, times(1)).findById(customerId);
         verify(customerRepository, times(1)).existsByDniAndIdNot("10203040", customerId);
         verify(customerRepository, times(1)).save(any(Customer.class));
