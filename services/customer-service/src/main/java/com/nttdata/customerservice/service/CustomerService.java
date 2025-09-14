@@ -91,9 +91,6 @@ public class CustomerService {
 
         } catch (HttpClientErrorException.NotFound ex) {
             customerRepository.deleteById(id);
-        } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error al verificar cuentas del cliente: " + ex.getMessage());
         }
     }
 
