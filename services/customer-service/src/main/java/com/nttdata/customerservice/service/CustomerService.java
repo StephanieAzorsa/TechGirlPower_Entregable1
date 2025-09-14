@@ -76,7 +76,6 @@ public class CustomerService {
 
     public void deleteCustomer(String id) {
         String accountsServiceUrl = "http://account-service/api/v1/accounts/customer/" + id;
-
         try {
             ResponseEntity<List> response = restTemplate
                     .getForEntity(accountsServiceUrl, List.class);
@@ -91,10 +90,11 @@ public class CustomerService {
 
         } catch (HttpClientErrorException.NotFound ex) {
             customerRepository.deleteById(id);
+        } catch (CustomerHasActiveAccountsException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Error al verificar cuentas del cliente: " + ex.getMessage());
         }
     }
-
 }
