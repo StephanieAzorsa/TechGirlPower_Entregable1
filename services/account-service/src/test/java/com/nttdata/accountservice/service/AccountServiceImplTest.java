@@ -67,8 +67,59 @@ public class AccountServiceImplTest {
         verify(accountRepository, times(1)).findAll();
     }
 
-    // TODO: Debe retornar lista vacía cuando no hay cuentas
+    // CP-AS02: Debe retornar lista vacía cuando no hay cuentas
+    @Test
+    void getAccounts_ShouldReturnEmptyList_WhenNoAccountsExist() {
+        // Arrange
+        when(accountRepository.findAll()).thenReturn(Collections.emptyList());
 
+        // Act
+        List<AccountResponseDTO> result = accountService.getAllAccounts();
+
+        // Assert
+        assertNotNull(result, "El resultado no debe ser null");
+        assertTrue(result.isEmpty(), "La lista debe estar vacía");
+        verify(accountRepository, times(1)).findAll();
+    }
+
+    // CP-AS03: Debe retornar cuenta cuando existe
+    @Test
+    void getAccountById_ShouldReturnAccount_WhenExists() {
+        // Arrange
+        String accountId = "account-1";
+        Account account = new Account(
+                accountId,
+                "1000000001",
+                BigDecimal.valueOf(500.0),
+                AccountType.AHORROS,
+                "customer-1"
+        );
+
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+
+        // Act
+        AccountResponseDTO result = accountService.getAccountById(accountId);
+
+        // Assert
+        assertNotNull(result, "El resultado no debería ser null");
+        assertEquals(accountId, result.getId(), "El ID de la cuenta debe coincidir");
+        verify(accountRepository, times(1)).findById(accountId);
+    }
+
+    // CP-AS04: Debe lanzar excepción cuando no existe
+    @Test
+    void getAccountById_WhenNotExists_ShouldThrowException() {
+        // Arrange
+        String accountId = "non-existent";
+        when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(AccountNotFoundException.class,
+                () -> accountService.getAccountById(accountId),
+                "Debe lanzar AccountNotFoundException si la cuenta no existe");
+
+        verify(accountRepository, times(1)).findById(accountId);
+    }
 
     // -------------------- Pruebas para mostrar las cuentas asociadas a un cliente --------------------
 
@@ -125,6 +176,38 @@ public class AccountServiceImplTest {
         verify(accountRepository, times(1)).findByCustomerId(customerId);
     }
 
+    // CP-AS07: Debe crear cuenta cuando un cliente existe
+    @Test
+    void createAccount_ShouldCreateAccount_WhenCustomerExists() {
+        // Arrange
+        String accountId = "a1b2c3d4-e5f6-7890-1234-ef1234567893";
+
+        AccountRequestDTO request = new AccountRequestDTO();
+        request.setInitialBalance(BigDecimal.valueOf(100.0));
+        request.setAccountType(AccountType.AHORROS);
+        request.setCustomerId("customer-1");
+
+        Account savedAccount = new Account(
+                accountId,
+                "1000000001",
+                BigDecimal.valueOf(100.0),
+                AccountType.AHORROS,
+                "customer-1"
+        );
+
+        when(accountRepository.save(any(Account.class))).thenReturn(savedAccount);
+
+        // Act
+        AccountResponseDTO result = accountService.createAccount(request);
+
+        // Assert
+        assertNotNull(result, "El resultado no debería ser null");
+        assertEquals(accountId, result.getId(), "El ID de la cuenta debe coincidir");
+        assertEquals("customer-1", result.getCustomerId(), "El customerId debe coincidir");
+
+        verify(accountRepository, times(1)).save(any(Account.class));
+    }
+
     // -------------------- Pruebas para la creación de una cuenta bancaria --------------------
 
     // CP-AS08: Debe lanzar excepción cuando cliente no existe
@@ -143,6 +226,24 @@ public class AccountServiceImplTest {
         assertThrows(CustomerNotFoundException.class, () -> accountService.createAccount(request));
         verify(accountRepository, never()).save(any(Account.class));
     }
+
+    // CP-AS09: Debe validar saldo inicial mayor a 0
+    @Test
+    void createAccount_ShouldThrowException_WhenInitialBalanceIsZeroOrNegative() {
+        // Arrange
+        AccountRequestDTO request = new AccountRequestDTO();
+        request.setInitialBalance(BigDecimal.ZERO);
+        request.setAccountType(AccountType.AHORROS);
+        request.setCustomerId("customer-1");
+
+        // Act & Assert
+        assertThrows(InsufficientBalanceException.class,
+                () -> accountService.createAccount(request),
+                "Debe lanzar excepción cuando el saldo inicial es 0 o negativo");
+
+        verify(accountRepository, never()).save(any(Account.class));
+    }
+
 
     // CP-AS10: Debe rechazar saldo inicial negativo
     @Test
@@ -165,6 +266,35 @@ public class AccountServiceImplTest {
 
     // ------------------------ Pruebas para depósito ------------------------
 
+    // CP-AS11: Debe aumentar saldo correctamente
+    @Test
+    void deposit_ShouldIncreaseBalance_WhenAmountIsValid() {
+        // Arrange
+        String accountId = "account-1";
+        Account account = new Account(
+                accountId,
+                "1000000001",
+                BigDecimal.valueOf(100.0),
+                AccountType.AHORROS,
+                "customer-1"
+        );
+
+        TransactionRequestDTO transaction = new TransactionRequestDTO();
+        transaction.setAmount(BigDecimal.valueOf(50.0));
+
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        AccountResponseDTO result = accountService.deposit(accountId, transaction);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(BigDecimal.valueOf(150.0), result.getBalance(), "El saldo debe aumentar correctamente");
+        verify(accountRepository, times(1)).findById(accountId);
+        verify(accountRepository, times(1)).save(any(Account.class));
+    }
+
     // CP-AS12: Debe lanzar excepción si cuenta no existe
     @Test
     void deposit_WhenAccountNotExists_ShouldThrowException() {
@@ -178,6 +308,32 @@ public class AccountServiceImplTest {
         // Act & Assert
         assertThrows(AccountNotFoundException.class,
                 () -> accountService.deposit(accountId, transaction));
+        verify(accountRepository, never()).save(any(Account.class));
+    }
+
+    // CP-AS13: Debe rechazar depósito negativo
+    @Test
+    void deposit_ShouldThrowException_WhenAmountIsNegative() {
+        // Arrange
+        String accountId = "account-1";
+        Account account = new Account(
+                accountId,
+                "1000000001",
+                BigDecimal.valueOf(100.0),
+                AccountType.AHORROS,
+                "customer-1"
+        );
+
+        TransactionRequestDTO transaction = new TransactionRequestDTO();
+        transaction.setAmount(BigDecimal.valueOf(-50.0));
+
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class,
+                () -> accountService.deposit(accountId, transaction),
+                "Debe lanzar excepción cuando el monto es negativo");
+
         verify(accountRepository, never()).save(any(Account.class));
     }
 
@@ -235,6 +391,31 @@ public class AccountServiceImplTest {
         verify(accountRepository, times(1)).save(any(Account.class));
     }
 
+    // CP-AS16: Debe rechazar retiro con saldo insuficiente
+    @Test
+    void withdraw_SavingsAccount_ShouldThrowException_WhenBalanceIsInsufficient() {
+        // Arrange
+        String accountId = "account-1";
+        Account account = new Account(
+                accountId,
+                "1000000001",
+                BigDecimal.valueOf(100.0),
+                AccountType.AHORROS,
+                "customer-1"
+        );
+
+        TransactionRequestDTO transaction = new TransactionRequestDTO();
+        transaction.setAmount(BigDecimal.valueOf(200.0));
+
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+
+        // Act & Assert
+        assertThrows(InsufficientBalanceException.class,
+                () -> accountService.withdraw(accountId, transaction));
+
+        verify(accountRepository, never()).save(any(Account.class));
+    }
+
     // CP-AS17: Cuentas de AHORRO: Debe rechazar retiro que deje saldo negativo
     @Test
     void withdraw_FromSavingsWithInsufficientBalance_ShouldThrowException() {
@@ -256,6 +437,34 @@ public class AccountServiceImplTest {
         assertThrows(InsufficientBalanceException.class,
                 () -> accountService.withdraw(accountId, transaction));
         verify(accountRepository, never()).save(any(Account.class));
+    }
+
+    // CP-AS18: Cuenta CORRIENTE: Debe permitir sobregiro dentro del límite (-500)
+    @Test
+    void withdraw_CheckingAccount_ShouldAllowOverdraftWithinLimit() {
+        // Arrange
+        String accountId = "account-1";
+        Account account = new Account(
+                accountId,
+                "2000000001",
+                BigDecimal.valueOf(100.0),
+                AccountType.CORRIENTE,
+                "customer-1"
+        );
+
+        TransactionRequestDTO transaction = new TransactionRequestDTO();
+        transaction.setAmount(BigDecimal.valueOf(550.0));
+
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        AccountResponseDTO result = accountService.withdraw(accountId, transaction);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(new BigDecimal("-450.0"), result.getBalance());
+        verify(accountRepository, times(1)).save(account);
     }
 
     // CP-AS19: Cuenta CORRIENTE: Debe rechazar sobregiro fuera del límite (-500)
