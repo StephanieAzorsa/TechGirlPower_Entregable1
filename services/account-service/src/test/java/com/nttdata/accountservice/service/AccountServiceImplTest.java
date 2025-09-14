@@ -39,7 +39,7 @@ public class AccountServiceImplTest {
 
     // ------------------------- Pruebas para get accounts -------------------------
 
-    // Debe retornar lista de cuentas cuando existen
+    // CP-AS01: Debe retornar lista de cuentas cuando existen
     @Test
     void getAllAccounts_ShouldReturnAllAccounts() {
         // Arrange
@@ -72,7 +72,7 @@ public class AccountServiceImplTest {
 
     // -------------------- Pruebas para mostrar las cuentas asociadas a un cliente --------------------
 
-    // Debe retornar cuentas del cliente
+    // CP-AS05: Debe retornar cuentas del cliente
     @Test
     void getAccountByCustomerId_ShouldReturnCustomerAccounts() {
         // Arrange
@@ -104,7 +104,7 @@ public class AccountServiceImplTest {
                 .findByCustomerId(customerId);
     }
 
-    // Debe retornar lista vacía del cliente con sus cuentas
+    // CP-AS06: Debe retornar lista vacía del cliente con sus cuentas
     @Test
     void getAccountByCustomerId_WhenNoAccounts_ShouldReturnEmptyList() {
         // Arrange
@@ -127,7 +127,7 @@ public class AccountServiceImplTest {
 
     // -------------------- Pruebas para la creación de una cuenta bancaria --------------------
 
-    // Debe lanzar excepción cuando cliente no existe
+    // CP-AS08: Debe lanzar excepción cuando cliente no existe
     @Test
     void createAccount_WhenCustomerNotExists_ShouldThrowException() {
         // Arrange
@@ -144,7 +144,7 @@ public class AccountServiceImplTest {
         verify(accountRepository, never()).save(any(Account.class));
     }
 
-    // Debe rechazar saldo inicial negativo
+    // CP-AS10: Debe rechazar saldo inicial negativo
     @Test
     void createAccount_WhenNegativeInitialBalance_ShouldThrowException() {
         // Arrange
@@ -165,7 +165,7 @@ public class AccountServiceImplTest {
 
     // ------------------------ Pruebas para depósito ------------------------
 
-    // Debe lanzar excepción si cuenta no existe
+    // CP-AS12: Debe lanzar excepción si cuenta no existe
     @Test
     void deposit_WhenAccountNotExists_ShouldThrowException() {
         // Arrange
@@ -181,7 +181,7 @@ public class AccountServiceImplTest {
         verify(accountRepository, never()).save(any(Account.class));
     }
 
-    // Debe rechazar depósito cero
+    // CP-AS14: Debe rechazar depósito cero
     @Test
     void deposit_WhenZeroAmount_ShouldThrowException() {
         // Arrange
@@ -206,7 +206,7 @@ public class AccountServiceImplTest {
 
     // ------------------------ Pruebas para retiro ------------------------
 
-    //
+    // CP-AS15: Cuentas de AHORRO: Debe permitir retiro con saldo suficiente
     @Test
     void withdraw_FromSavingsWithSufficientBalance_ShouldUpdateBalance() {
         // Arrange
@@ -235,7 +235,7 @@ public class AccountServiceImplTest {
         verify(accountRepository, times(1)).save(any(Account.class));
     }
 
-    // Cuentas de AHORRO: Debe rechazar retiro que deje saldo negativo
+    // CP-AS17: Cuentas de AHORRO: Debe rechazar retiro que deje saldo negativo
     @Test
     void withdraw_FromSavingsWithInsufficientBalance_ShouldThrowException() {
         // Arrange
@@ -258,7 +258,7 @@ public class AccountServiceImplTest {
         verify(accountRepository, never()).save(any(Account.class));
     }
 
-    // Cuenta CORRIENTE: Debe rechazar sobregiro fuera del límite (-500)
+    // CP-AS19: Cuenta CORRIENTE: Debe rechazar sobregiro fuera del límite (-500)
     @Test
     void withdraw_FromCheckingWithOverdraftExceedingLimit_ShouldThrowException() {
         // Arrange
@@ -282,7 +282,7 @@ public class AccountServiceImplTest {
         verify(accountRepository, never()).save(any(Account.class));
     }
 
-    // Cuenta CORRIENTE: Debe tener éxito en caso de límite exacto
+    // CP-AS20: Cuenta CORRIENTE: Debe tener éxito en caso de límite exacto
     @Test
     void withdraw_FromCheckingAtOverdraftLimit_ShouldSucceed() {
         // Arrange
@@ -313,7 +313,7 @@ public class AccountServiceImplTest {
 
     // ------------------------ Pruebas para deleteAccount ------------------------
 
-    // Debe eliminar cuenta existente
+    // CP-AS21: Debe eliminar cuenta existente
     @Test
     void deleteAccount_WhenAccountExists_ShouldDelete() {
         // Arrange
@@ -328,7 +328,7 @@ public class AccountServiceImplTest {
         verify(accountRepository, times(1)).deleteById(accountId);
     }
 
-    // Debe lanzar excepción si cuenta no existe
+    // CP-AS22: Debe lanzar excepción si cuenta no existe
     @Test
     void deleteAccount_WhenAccountNotExists_ShouldThrowException() {
         // Arrange
