@@ -7,6 +7,7 @@ import com.nttdata.customerservice.exception.CustomerNotFoundException;
 import com.nttdata.customerservice.exception.DniAlreadyExistsException;
 import com.nttdata.customerservice.model.Customer;
 import com.nttdata.customerservice.repository.CustomerRepository;
+import com.nttdata.customerservice.service.impl.CustomerServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,7 +38,7 @@ class CustomerServiceTest {
     private RestTemplate restTemplate;
 
     @InjectMocks
-    private CustomerService customerService;
+    private CustomerServiceImpl customerService;
 
     // CP-CS01: Retorna lista de clientes cuando existen
     @Test

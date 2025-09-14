@@ -3,6 +3,7 @@ package com.nttdata.accountservice.controller;
 import com.nttdata.accountservice.dto.AccountResponseDTO;
 import com.nttdata.accountservice.dto.TransactionRequestDTO;
 import com.nttdata.accountservice.model.AccountType;
+import com.nttdata.accountservice.service.AccountService;
 import com.nttdata.accountservice.service.impl.AccountServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.*;
 public class AccountControllerTest {
 
     @Mock
-    private AccountServiceImpl accountService;
+    private AccountService accountService;
 
     @InjectMocks
     private AccountController accountController;
