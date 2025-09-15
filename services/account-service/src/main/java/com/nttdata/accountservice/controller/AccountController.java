@@ -6,7 +6,6 @@ import com.nttdata.accountservice.dto.TransactionRequestDTO;
 import com.nttdata.accountservice.service.impl.AccountServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,9 +48,7 @@ public class AccountController {
         AccountResponseDTO newAccount = accountService
                 .createAccount(accountRequestDTO);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(newAccount);
+        return ResponseEntity.ok(newAccount);
     }
 
     @PutMapping("/{accountId}/deposit")
