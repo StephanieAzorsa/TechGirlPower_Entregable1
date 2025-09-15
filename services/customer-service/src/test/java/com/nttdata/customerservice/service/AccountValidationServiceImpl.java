@@ -29,7 +29,7 @@ class AccountValidationServiceImplTest {
     @Test
     void validateCustomerHasNoAccounts_WhenNoAccounts_ShouldNotThrowException() {
         // Arrange
-        String customerId = "123e4567-e89b-12d3-a456-426614174000";
+        String customerId = "123";
         String url = "http://localhost:8082/api/v1/accounts/customer/" + customerId;
 
         when(restTemplate.getForObject(url, Object[].class))
@@ -44,7 +44,7 @@ class AccountValidationServiceImplTest {
     @Test
     void validateCustomerHasNoAccounts_WhenAccountsExist_ShouldThrowException() {
         // Arrange
-        String customerId = "123e4567-e89b-12d3-a456-426614174001";
+        String customerId = "123";
         String url = "http://localhost:8082/api/v1/accounts/customer/" + customerId;
 
         Object[] accounts = {new Object(), new Object()}; // Array con 2 cuentas
@@ -64,7 +64,7 @@ class AccountValidationServiceImplTest {
     @Test
     void validateCustomerHasNoAccounts_WhenServerError_ShouldThrowResponseStatusException() {
         // Arrange
-        String customerId = "123e4567-e89b-12d3-a456-426614174003";
+        String customerId = "123";
         String url = "http://localhost:8082/api/v1/accounts/customer/" + customerId;
 
         when(restTemplate.getForObject(url, Object[].class))
@@ -85,7 +85,7 @@ class AccountValidationServiceImplTest {
     @Test
     void validateCustomerHasNoAccounts_WhenConnectionError_ShouldThrowResponseStatusException() {
         // Arrange
-        String customerId = "123e4567-e89b-12d3-a456-426614174004";
+        String customerId = "123";
         String url = "http://localhost:8082/api/v1/accounts/customer/" + customerId;
 
         when(restTemplate.getForObject(url, Object[].class))
@@ -107,7 +107,7 @@ class AccountValidationServiceImplTest {
     @Test
     void validateCustomerHasNoAccounts_WhenNullResponse_ShouldNotThrowException() {
         // Arrange
-        String customerId = "123e4567-e89b-12d3-a456-426614174005";
+        String customerId = "123";
         String url = "http://localhost:8082/api/v1/accounts/customer/" + customerId;
 
         when(restTemplate.getForObject(url, Object[].class))
@@ -122,7 +122,7 @@ class AccountValidationServiceImplTest {
     @Test
     void validateCustomerHasNoAccounts_WhenEmptyArray_ShouldNotThrowException() {
         // Arrange
-        String customerId = "123e4567-e89b-12d3-a456-426614174006";
+        String customerId = "123";
         String url = "http://localhost:8082/api/v1/accounts/customer/" + customerId;
 
         when(restTemplate.getForObject(url, Object[].class))
