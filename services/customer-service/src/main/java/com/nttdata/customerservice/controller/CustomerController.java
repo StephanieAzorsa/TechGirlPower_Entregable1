@@ -5,21 +5,20 @@ import com.nttdata.customerservice.dto.CustomerResponseDTO;
 import com.nttdata.customerservice.dto.validators.CreateCustomerValidationGroup;
 import com.nttdata.customerservice.service.CustomerService;
 import jakarta.validation.groups.Default;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/customers")
 public class CustomerController {
 
     private final CustomerService customerService;
-
-    public CustomerController(CustomerService customerService) {
-        this.customerService = customerService;
-    }
 
     @PostMapping
     public ResponseEntity<CustomerResponseDTO> createCustomer(
@@ -28,7 +27,9 @@ public class CustomerController {
 
         CustomerResponseDTO customerResponseDTO = customerService
                 .createCustomer(customerRequestDTO);
-        return ResponseEntity.ok().body(customerResponseDTO);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(customerResponseDTO);
     }
 
     @GetMapping

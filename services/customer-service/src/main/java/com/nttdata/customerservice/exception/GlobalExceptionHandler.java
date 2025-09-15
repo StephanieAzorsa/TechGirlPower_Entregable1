@@ -2,6 +2,7 @@ package com.nttdata.customerservice.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -42,13 +43,27 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomerNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleCustomerNotFoundException(
-            CustomerNotFoundException ex){
+            CustomerNotFoundException ex) {
 
         log.warn("El cliente no se encontró con ID: {}", ex.getMessage());
 
         Map<String, String> errors = new HashMap<>();
         errors.put("message", "Cliente no encontrado");
 
-        return ResponseEntity.badRequest().body(errors);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
+
+    @ExceptionHandler(CustomerHasActiveAccountsException.class)
+    public ResponseEntity<Map<String, String>> handleCustomerHasActiveAccountsException(
+            CustomerHasActiveAccountsException ex) {
+
+        log.warn("El cliente tiene cuentas activas {}", ex.getMessage());
+
+        Map<String, String> errors = new HashMap<>();
+        errors.put("message", "Cliente con cuentas activas");
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
+    }
+
+
 }

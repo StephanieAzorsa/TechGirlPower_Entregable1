@@ -4,21 +4,22 @@ import com.nttdata.accountservice.dto.AccountRequestDTO;
 import com.nttdata.accountservice.dto.AccountResponseDTO;
 import com.nttdata.accountservice.dto.TransactionRequestDTO;
 import com.nttdata.accountservice.service.AccountService;
+import com.nttdata.accountservice.service.TransactionService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
 
     private final AccountService accountService;
-
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
-    }
+    private final TransactionService transactionService;
 
     @GetMapping
     public ResponseEntity<List<AccountResponseDTO>> getAllAccounts() {
@@ -50,7 +51,9 @@ public class AccountController {
         AccountResponseDTO newAccount = accountService
                 .createAccount(accountRequestDTO);
 
-        return ResponseEntity.ok(newAccount);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(newAccount);
     }
 
     @PutMapping("/{accountId}/deposit")
@@ -58,7 +61,7 @@ public class AccountController {
             @PathVariable String accountId,
             @Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
 
-        AccountResponseDTO updatedAccount = accountService
+        AccountResponseDTO updatedAccount = transactionService
                 .deposit(accountId, transactionRequestDTO);
 
         return ResponseEntity.ok(updatedAccount);
@@ -69,7 +72,9 @@ public class AccountController {
             @PathVariable String accountId,
             @Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
 
-        AccountResponseDTO updatedAccount = accountService.withdraw(accountId, transactionRequestDTO);
+        AccountResponseDTO updatedAccount = transactionService
+                .withdraw(accountId, transactionRequestDTO);
+
         return ResponseEntity.ok(updatedAccount);
     }
 

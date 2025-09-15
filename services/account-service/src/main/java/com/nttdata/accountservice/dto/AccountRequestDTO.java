@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Setter
 public class AccountRequestDTO {
 
-    @DecimalMin(value = "0.0", message = "El saldo no puede ser negativo")
+    @DecimalMin(value = "0.01", message = "El saldo inicial debe ser mayor a 0")
     private BigDecimal initialBalance = BigDecimal.ZERO;
 
     @NotNull(message = "El tipo de cuenta es obligatorio")
