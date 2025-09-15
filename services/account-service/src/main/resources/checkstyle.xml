@@ -8,8 +8,24 @@
             <property name="format"
                       value="com.nttdata.accountservice"/>
         </module>
+        <module name="ConstantName"/>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="MethodName"/>
+        <module name="PackageName"/>
+        <module name="ParameterName"/>
+        <module name="StaticVariableName"/>
+        <module name="TypeName"/>
+        <module name="AvoidStarImport"/>
+        <module name="IllegalImport"/>
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
         <module name="MethodLength">
             <property name="max" value="50"/>
+        </module>
+        <module name="ParameterNumber">
+            <property name="max" value="10"/>
         </module>
     </module>
 </module>

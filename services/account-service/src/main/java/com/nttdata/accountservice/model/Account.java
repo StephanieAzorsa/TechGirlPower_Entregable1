@@ -2,7 +2,9 @@ package com.nttdata.accountservice.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -12,6 +14,8 @@ import java.math.BigDecimal;
 @Table(name = "accounts")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Account {
 
     @Id
