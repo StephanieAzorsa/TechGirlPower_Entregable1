@@ -1,4 +1,4 @@
-package com.nttdata.accountservice.factory;
+package com.nttdata.accountservice.service.factory;
 
 import com.nttdata.accountservice.model.Account;
 import com.nttdata.accountservice.model.AccountType;
@@ -17,13 +17,10 @@ public class AccountFactory {
 
         switch (type) {
             case AHORROS -> {
-                account.setBalance(initialBalance.compareTo(BigDecimal.ZERO) > 0
-                        ? initialBalance
-                        : BigDecimal.valueOf(50));
+                account.setBalance(initialBalance);
                 account.setAccountType(AccountType.AHORROS);
             }
             case CORRIENTE -> {
-
                 account.setBalance(initialBalance);
                 account.setAccountType(AccountType.CORRIENTE);
             }
