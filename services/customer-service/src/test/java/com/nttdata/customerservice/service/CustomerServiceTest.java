@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -128,12 +127,10 @@ class CustomerServiceTest {
         String id = "452";
         when(customerRepository.findById(id)).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+        CustomerNotFoundException exception = assertThrows(CustomerNotFoundException.class,
                 () -> customerService.getCustomerById(id));
 
-        assertNotNull(exception.getReason());
-        assertTrue(exception.getReason().contains("Cliente no encontrado con ID: 452"));
-        assertFalse(exception.getReason().contains("DNI ya existe"));
+        assertEquals("El cliente con ID [452] no se encontró", exception.getMessage());
 
         verify(customerRepository, times(1)).findById(id);
     }
