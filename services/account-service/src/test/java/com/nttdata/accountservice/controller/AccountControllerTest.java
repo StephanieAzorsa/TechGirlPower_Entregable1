@@ -5,6 +5,7 @@ import com.nttdata.accountservice.dto.AccountResponseDTO;
 import com.nttdata.accountservice.dto.TransactionRequestDTO;
 import com.nttdata.accountservice.model.AccountType;
 import com.nttdata.accountservice.service.AccountService;
+import com.nttdata.accountservice.service.TransactionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,11 +26,13 @@ public class AccountControllerTest {
     @Mock
     private AccountService accountService;
 
+    @Mock
+    private TransactionService transactionService;
+
     @InjectMocks
     private AccountController accountController;
 
-    // GET /api/v1/accounts
-    // Retorna 200 OK con lista de cuentas
+    // CP-AS23: GET /accounts --> Retorna 200 OK con lista de cuentas
     @Test
     void getAllAccounts_ShouldReturnAccounts() {
         // Arrange
@@ -39,7 +42,6 @@ public class AccountControllerTest {
                 new BigDecimal("200.00"),
                 AccountType.AHORROS,
                 "customer-1");
-
         AccountResponseDTO account2 = new AccountResponseDTO(
                 "2",
                 "0987654321",
@@ -56,13 +58,15 @@ public class AccountControllerTest {
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody(), "El body no debería ser null");
+        assertNotNull(response.getBody(),
+                "El body no debería ser null");
         assertEquals(2, response.getBody().size());
-        verify(accountService, times(1)).getAllAccounts();
+
+        verify(accountService, times(1))
+                .getAllAccounts();
     }
 
-    // TODO: GET /api/v1/accounts/{id}
-    //  Retorna 200 OK con cuenta
+    // CP-AS24: GET /accounts/{id} --> Retorna 200 OK con cuenta
     @Test
     void getAccountById_ShouldReturnAccount() {
         // Arrange
@@ -78,18 +82,21 @@ public class AccountControllerTest {
         when(accountService.getAccountById(accountId)).thenReturn(account);
 
         // Act
-        ResponseEntity<AccountResponseDTO> response = accountController.getAccountById(accountId);
+        ResponseEntity<AccountResponseDTO> response =
+                accountController.getAccountById(accountId);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody(), "El body no debería ser null");
-        assertEquals(accountId, response.getBody().getId(), "El ID debería coincidir");
-        verify(accountService, times(1)).getAccountById(accountId);
+        assertNotNull(response.getBody(),
+                "El body no debería ser null");
+        assertEquals(accountId, response.getBody().getId(),
+                "El ID debería coincidir");
 
+        verify(accountService, times(1))
+                .getAccountById(accountId);
     }
 
-    // GET /api/v1/accounts/customer/{customerId}
-    // Retorna 200 OK con cuentas del cliente
+    // CP-AS25: GET /accounts/customer/{customerId} --> Retorna 200 OK con cuentas del cliente
     @Test
     void getAccountsByCustomerId_ShouldReturnAccounts() {
         // Arrange
@@ -122,12 +129,12 @@ public class AccountControllerTest {
                 .stream()
                 .allMatch(acc ->
                         customerId.equals(acc.getCustomerId())));
+
         verify(accountService, times(1))
                 .getAccountsByCustomerId(customerId);
     }
 
-    // TODO: POST /api/v1/accounts
-    //  Retorna 201 Created con cuenta creada
+    // CP-AS26: POST /accounts --> Retorna 201 Created con cuenta creada
     @Test
     void createAccount_ShouldCreateAccount() {
         // Arrange
@@ -148,19 +155,25 @@ public class AccountControllerTest {
                 .thenReturn(createdAccount);
 
         // Act
-        ResponseEntity<AccountResponseDTO> response = accountController.createAccount(request);
+        ResponseEntity<AccountResponseDTO> response =
+                accountController.createAccount(request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertNotNull(response.getBody(), "El body no debería ser null");
-        assertEquals(createdAccount.getId(), response.getBody().getId(), "El ID debería coincidir");
-        assertEquals(createdAccount.getAccountNumber(), response.getBody().getAccountNumber(), "El número de cuenta debería coincidir");
+        assertNotNull(response.getBody(),
+                "El body no debería ser null");
+        assertEquals(createdAccount.getId(),
+                response.getBody().getId(),
+                "El ID debería coincidir");
+        assertEquals(createdAccount.getAccountNumber(),
+                response.getBody().getAccountNumber(),
+                "El número de cuenta debería coincidir");
 
-        verify(accountService, times(1)).createAccount(any(AccountRequestDTO.class));
+        verify(accountService, times(1))
+                .createAccount(any(AccountRequestDTO.class));
     }
 
-    // TODO: PUT /api/v1/accounts/{accountId}/deposit
-    //  Retorna 200 OK con saldo actualizado
+    // CP-AS27: PUT /accounts/{accountId}/deposit --> Retorna 200 OK con saldo actualizado
     @Test
     void deposit_ShouldUpdateBalance() {
         // Arrange
@@ -177,21 +190,25 @@ public class AccountControllerTest {
                 "customer-1"
         );
 
-        when(accountService.deposit(eq(accountId), any(TransactionRequestDTO.class)))
+        when(transactionService.deposit(eq(accountId), any(TransactionRequestDTO.class)))
                 .thenReturn(updatedAccount);
 
         // Act
-        ResponseEntity<AccountResponseDTO> response = accountController.deposit(accountId, request);
+        ResponseEntity<AccountResponseDTO> response =
+                accountController.deposit(accountId, request);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody(), "El body no debería ser null");
-        assertEquals(updatedAccount.getBalance(), response.getBody().getBalance(), "El saldo debe actualizarse correctamente");
-        verify(accountService, times(1)).deposit(eq(accountId), any(TransactionRequestDTO.class));
+        assertEquals(updatedAccount.getBalance(),
+                response.getBody().getBalance(),
+                "El saldo debe actualizarse correctamente");
+
+        verify(transactionService, times(1))
+                .deposit(eq(accountId), any(TransactionRequestDTO.class));
     }
 
-    // PUT /api/v1/accounts/{accountId}/withdraw
-    // Debe retorna 200 OK con saldo actualizado
+    // CP-AS28: PUT /accounts/{accountId}/withdraw --> Debe retorna 200 OK con saldo actualizado
     @Test
     void withdraw_ShouldUpdateBalance() {
         // Arrange
@@ -206,23 +223,22 @@ public class AccountControllerTest {
                 AccountType.AHORROS,
                 "customer-1");
 
-        when(accountService
-                .withdraw(eq(accountId), any(TransactionRequestDTO.class)))
+        when(transactionService.withdraw(eq(accountId), any(TransactionRequestDTO.class)))
                 .thenReturn(updatedAccount);
 
         // Act
-        ResponseEntity<AccountResponseDTO> response = accountController.withdraw(accountId, transaction);
+        ResponseEntity<AccountResponseDTO> response =
+                accountController.withdraw(accountId, transaction);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(new BigDecimal("30.00"), response.getBody().getBalance());
-        verify(accountService, times(1))
+        verify(transactionService, times(1))
                 .withdraw(eq(accountId), any(TransactionRequestDTO.class));
     }
 
-    // DELETE /api/v1/accounts/{id}
-    // Debe retornar 204 No Content
+    // CP-AS29: DELETE /accounts/{id} --> Debe retornar 204 No Content
     @Test
     void deleteAccount_ShouldDeleteAccount() {
         // Arrange
@@ -236,6 +252,7 @@ public class AccountControllerTest {
         // Assert
         assertEquals(HttpStatus.NO_CONTENT,
                 response.getStatusCode());
+
         verify(accountService, times(1))
                 .deleteAccount(accountId);
     }

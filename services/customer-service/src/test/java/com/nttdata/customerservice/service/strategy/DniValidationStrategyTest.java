@@ -1,9 +1,8 @@
-package com.nttdata.customerservice.service;
+package com.nttdata.customerservice.service.strategy;
 
 import com.nttdata.customerservice.dto.CustomerRequestDTO;
 import com.nttdata.customerservice.exception.DniAlreadyExistsException;
 import com.nttdata.customerservice.repository.CustomerRepository;
-import com.nttdata.customerservice.service.strategy.DniValidationStrategy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +21,7 @@ public class DniValidationStrategyTest {
     @InjectMocks
     private DniValidationStrategy dniValidationStrategy;
 
+    //CP-CS33: Debe lanzar excepción cuando existe DNI para nuevo cliente
     @Test
     void validate_shouldThrowWhenDniExistsForNewCustomer() {
         // Arrange
@@ -41,6 +41,7 @@ public class DniValidationStrategyTest {
                 .existsByDni("65321485");
     }
 
+    //CP-CS34: Debe lanzar excepción si DNI existe para otro cliente
     @Test
     void validate_shouldThrowWhenDniExistsForOtherCustomer() {
         // Arrange
@@ -62,6 +63,7 @@ public class DniValidationStrategyTest {
                 .existsByDniAndIdNot("65321485", "123");
     }
 
+    //CP-CS35: Debe lanzar excepción si el DNI no existe
     @Test
     void validate_shouldPassWhenDniNotExists() {
         // Arrange

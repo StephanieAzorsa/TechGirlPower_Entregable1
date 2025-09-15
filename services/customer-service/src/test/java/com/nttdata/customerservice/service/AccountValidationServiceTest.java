@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AccountValidationServiceImplTest {
+class AccountValidationServiceTest {
 
     @Mock
     private RestTemplate restTemplate;
@@ -25,7 +25,7 @@ class AccountValidationServiceImplTest {
     @InjectMocks
     private AccountValidationServiceImpl accountValidationService;
 
-    // CP-CS21: Debe lanzar excepción si tiene cuenta(s) asociadas
+    // CP-CS24: Debe lanzar excepción si tiene cuenta(s) asociadas
     @Test
     void validateCustomerHasNoAccounts_WhenAccountsExist_ShouldThrowException() {
         // Arrange
@@ -45,7 +45,7 @@ class AccountValidationServiceImplTest {
         assertEquals("Cliente tiene cuentas activas", exception.getMessage());
     }
 
-    // CP-CS22: Debe lanzar excepción si existe errores del servidor
+    // CP-CS25: Debe lanzar excepción si existe errores del servidor
     @Test
     void validateCustomerHasNoAccounts_WhenServerError_ShouldThrowResponseStatusException() {
         // Arrange
@@ -66,7 +66,7 @@ class AccountValidationServiceImplTest {
         assertTrue(exception.getReason().contains("Error técnico al verificar cuentas"));
     }
 
-    // CP-CS23: Debe lanzar excepción si existe errores de conexión
+    // CP-CS26: Debe lanzar excepción si existe errores de conexión
     @Test
     void validateCustomerHasNoAccounts_WhenConnectionError_ShouldThrowResponseStatusException() {
         // Arrange
@@ -88,7 +88,7 @@ class AccountValidationServiceImplTest {
         assertTrue(exception.getReason().contains("Connection timeout"));
     }
 
-    // CP-CS24: Debe lanzar excepción si el Response es null
+    // CP-CS27: Debe lanzar excepción si el Response es null
     @Test
     void validateCustomerHasNoAccounts_WhenNullResponse_ShouldNotThrowException() {
         // Arrange
@@ -103,7 +103,7 @@ class AccountValidationServiceImplTest {
                 accountValidationService.validateCustomerHasNoAccounts(customerId));
     }
 
-    // CP-CS25: Debe lanzar excepción si el Response contenga el array vacío
+    // CP-CS28: Debe lanzar excepción si el Response contenga el array vacío
     @Test
     void validateCustomerHasNoAccounts_WhenEmptyArray_ShouldNotThrowException() {
         // Arrange

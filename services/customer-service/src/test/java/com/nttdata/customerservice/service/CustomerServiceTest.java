@@ -139,7 +139,7 @@ class CustomerServiceTest {
         verify(customerRepository, times(1)).findById(id);
     }
 
-    // CP-CS05: Crea cliente cuando debe crear cliente cuando las validaciones pasan
+    // CP-CS05: Debe crear cliente cuando las validaciones pasan
     @Test
     void createCustomer_shouldCreateCustomerWhenValidationsPass() {
         // Arrange

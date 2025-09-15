@@ -1,9 +1,7 @@
-package com.nttdata.customerservice.service;
+package com.nttdata.customerservice.service.strategy;
 
 import com.nttdata.customerservice.dto.CustomerRequestDTO;
 import com.nttdata.customerservice.exception.DniAlreadyExistsException;
-import com.nttdata.customerservice.service.strategy.ValidationContext;
-import com.nttdata.customerservice.service.strategy.ValidationStrategy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,6 +29,7 @@ class ValidationContextTest {
     @InjectMocks
     private ValidationContext validationContext;
 
+    // CP-CS29: Debe llamar a todas las estrategias en orden
     @Test
     void executeValidations_shouldCallAllStrategiesInOrder() {
         // Arrange
@@ -62,6 +61,7 @@ class ValidationContextTest {
                 .validate(any(), anyString());
     }
 
+    // CP-CS30: Debe para en la primera excepción
     @Test
     void executeValidations_shouldStopOnFirstException() {
         // Arrange
@@ -88,6 +88,7 @@ class ValidationContextTest {
         verify(strategy3, never()).validate(any(), anyString());
     }
 
+    // CP-CS31: Debe manejar las estrategias de lista vacía
     @Test
     void executeValidations_shouldHandleEmptyStrategiesList() {
         // Arrange
@@ -101,6 +102,7 @@ class ValidationContextTest {
         assertDoesNotThrow(() -> validationContext.executeValidations(dto, customerId));
     }
 
+    // CP-CS32: Debe manejar el customerId  nulo
     @Test
     void executeValidations_shouldHandleNullCustomerId() {
         // Arrange
@@ -109,7 +111,9 @@ class ValidationContextTest {
         validationContext = new ValidationContext(List.of(strategy1));
 
         // Act & Assert
-        assertDoesNotThrow(() -> validationContext.executeValidations(dto, null));
-        verify(strategy1, times(1)).validate(any(), isNull());
+        assertDoesNotThrow(() -> validationContext
+                .executeValidations(dto, null));
+        verify(strategy1, times(1))
+                .validate(any(), isNull());
     }
 }
