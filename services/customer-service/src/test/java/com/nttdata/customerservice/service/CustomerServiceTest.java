@@ -268,7 +268,7 @@ class CustomerServiceTest {
 
     // CP-CS09: Lanza excepción cuando DNI está duplicado
     @Test
-    void updateCustomer_DniDuplicado_LanzaExcepcion() {
+    void updateCustomer_DuplicateDNI_ThrowsException() {
         String id = "123";
         CustomerRequestDTO dto = new CustomerRequestDTO();
         dto.setDni("12345678");
