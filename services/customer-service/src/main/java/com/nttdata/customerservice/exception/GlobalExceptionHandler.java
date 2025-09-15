@@ -43,19 +43,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomerNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleCustomerNotFoundException(
-            CustomerNotFoundException ex){
+            CustomerNotFoundException ex) {
 
         log.warn("El cliente no se encontró con ID: {}", ex.getMessage());
 
         Map<String, String> errors = new HashMap<>();
         errors.put("message", "Cliente no encontrado");
 
-        return ResponseEntity.badRequest().body(errors);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
 
     @ExceptionHandler(CustomerHasActiveAccountsException.class)
     public ResponseEntity<Map<String, String>> handleCustomerHasActiveAccountsException(
-            CustomerHasActiveAccountsException ex){
+            CustomerHasActiveAccountsException ex) {
 
         log.warn("El cliente tiene cuentas activas {}", ex.getMessage());
 
