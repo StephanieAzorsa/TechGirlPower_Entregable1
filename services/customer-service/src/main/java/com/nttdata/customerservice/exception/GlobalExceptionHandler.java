@@ -2,6 +2,7 @@ package com.nttdata.customerservice.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -51,4 +52,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(errors);
     }
+
+    @ExceptionHandler(CustomerHasActiveAccountsException.class)
+    public ResponseEntity<Map<String, String>> handleCustomerHasActiveAccountsException(
+            CustomerHasActiveAccountsException ex){
+
+        log.warn("El cliente tiene cuentas activas {}", ex.getMessage());
+
+        Map<String, String> errors = new HashMap<>();
+        errors.put("message", "Cliente con cuentas activas");
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
+    }
+
+
 }
