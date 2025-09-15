@@ -42,7 +42,7 @@ class CustomerControllerTest {
 
     // CP-CS12: POST /api/v1/customers retorna 201 created con cliente creado
     @Test
-    void createCustomer_Retorna201Created() throws Exception {
+    void createCustomer_Returns201Created() throws Exception {
         CustomerRequestDTO requestDTO = new CustomerRequestDTO();
         requestDTO.setName("Juan");
         requestDTO.setLastname("Perez");
@@ -73,7 +73,7 @@ class CustomerControllerTest {
 
     // CP-CS13: GET /api/v1/customers retorna 200 OK con lista de clientes
     @Test
-    void getCustomers_Retorna200ConLista() throws Exception {
+    void getCustomers_Returns200WithList() throws Exception {
         CustomerResponseDTO customer1 = new CustomerResponseDTO();
         customer1.setId("1");
         customer1.setName("Juan");
@@ -99,13 +99,13 @@ class CustomerControllerTest {
                     String content = result.getResponse().getContentAsString();
                     assertTrue(content.contains("Juan") && content.contains("Ana"),
                             "La respuesta debe contener los nombres Juan y Ana");
-                    System.out.println(" Test getCustomers_Retorna200ConLista pasó correctamente");
+                    System.out.println(" Test getCustomers_Returns200WithList pasó correctamente");
                 });
     }
 
     // CP-CS14: GET /api/v1/customers/{id} retorna 200 OK con cliente específico
     @Test
-    void getCustomerById_Retorna200ConCliente() throws Exception {
+    void getCustomerById_Returns200WithClient() throws Exception {
         CustomerResponseDTO responseDTO = new CustomerResponseDTO();
         responseDTO.setId("1");
         responseDTO.setName("Juan");
@@ -127,7 +127,7 @@ class CustomerControllerTest {
 
     // CP-CS15: PUT /api/v1/customers/{id} retorna 200 OK con cliente actualizado
     @Test
-    void updateCustomer_Retorna200ConClienteActualizado() throws Exception {
+    void updateCustomer_Returns200WithUpdatedClient() throws Exception {
         CustomerRequestDTO requestDTO = new CustomerRequestDTO();
         requestDTO.setName("Juan");
         requestDTO.setLastname("Perez");
@@ -158,7 +158,7 @@ class CustomerControllerTest {
 
     // CP-CS16: DELETE /api/v1/customers/{id} retorna 204 No Content
     @Test
-    void deleteCustomer_Retorna204NoContent() throws Exception {
+    void deleteCustomer_Returns204NoContent() throws Exception {
         Mockito.doNothing().when(customerService).deleteCustomer("1");
 
         mockMvc.perform(delete("/api/v1/customers/1"))
