@@ -8,6 +8,7 @@ import com.nttdata.customerservice.exception.DniAlreadyExistsException;
 import com.nttdata.customerservice.model.Customer;
 import com.nttdata.customerservice.repository.CustomerRepository;
 import com.nttdata.customerservice.service.impl.CustomerServiceImpl;
+import com.nttdata.customerservice.service.strategy.ValidationContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,6 +32,9 @@ class CustomerServiceTest {
 
     @Mock
     private AccountValidationService accountValidationService;
+
+    @Mock
+    private ValidationContext validationContext;
 
     @InjectMocks
     private CustomerServiceImpl customerService;
@@ -135,10 +139,10 @@ class CustomerServiceTest {
         verify(customerRepository, times(1)).findById(id);
     }
 
-    // CP-CS05: Crea cliente cuando DNI no existe
+    // CP-CS05: Crea cliente cuando debe crear cliente cuando las validaciones pasan
     @Test
-    void createCustomer_shouldCreateWhenDniNotExist() {
-        // Arrange: simulamos el DTO de entrada
+    void createCustomer_shouldCreateCustomerWhenValidationsPass() {
+        // Arrange
         CustomerRequestDTO dto = new CustomerRequestDTO();
         dto.setName("Margarita");
         dto.setLastname("Zapata");
@@ -146,33 +150,34 @@ class CustomerServiceTest {
         dto.setEmail("margarita_45@gmail.com");
         dto.setRegisteredDate(LocalDate.now().toString());
 
-        // Simulamos que no existe el DNI en la base de datos
-        when(customerRepository.existsByDni(anyString())).thenReturn(false);
+        when(customerRepository.save(any(Customer.class)))
+                .thenAnswer(invocation -> {
+                    Customer c = invocation.getArgument(0);
+                    c.setId("2");
+                    return c;
+                });
 
-        // Simulamos que al guardar  el cliente, devuelve el mismo cliente
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> {
-            Customer c = invocation.getArgument(0);
-            c.setId("2");
-            return c;
-        });
-
+        // Act
         CustomerResponseDTO responseDTO = customerService.createCustomer(dto);
 
-        // Assert: validamos que los datos se hayan mapeado correctamente
-
-        assertFalse(responseDTO.getId().isEmpty(), "El ID generado no debe estar vacío");
-        assertEquals("20304050", responseDTO.getDni(), "El nombre debe ser el mismo");
+        // Assert
         assertNotNull(responseDTO, "La respuesta no debe ser nula");
+        assertEquals("2", responseDTO.getId(), "El ID debe ser el generado");
         assertEquals("20304050", responseDTO.getDni(), "El DNI debe ser el mismo");
+        assertEquals("Margarita", responseDTO.getName(), "El nombre debe ser el mismo");
+        assertEquals("Zapata", responseDTO.getLastName(), "El apellido debe ser el mismo");
+        assertEquals("margarita_45@gmail.com", responseDTO.getEmail(), "El email debe ser el mismo");
 
-        // Verificamos que se haya consultado y luego guardado
-        verify(customerRepository, times(1)).existsByDni(dto.getDni());
-        verify(customerRepository, times(1)).save(any(Customer.class));
+        // Verify
+        verify(validationContext, times(1))
+                .executeValidations(any(CustomerRequestDTO.class), isNull());
+        verify(customerRepository, times(1))
+                .save(any(Customer.class));
     }
 
-    // CP-CS06: Lanza excepción cuando DNI ya existe
+    // CP-CS06: Lanza excepción cuando las validaciones fallan
     @Test
-    void createCustomer_shouldThrowWhenDniExists() {
+    void createCustomer_shouldThrowWhenValidationFails() {
         // Arrange: simulamos un DTO con un DNI ya registrado
         CustomerRequestDTO dto = new CustomerRequestDTO();
         dto.setName("Ana");
@@ -181,66 +186,77 @@ class CustomerServiceTest {
         dto.setEmail("ana-95@gmail.com");
         dto.setRegisteredDate(LocalDate.now().toString());
 
-        // Simulamos que el repositorio indica que el DNI ya existe
-        when(customerRepository.existsByDni(dto.getDni())).thenReturn(true);
+        // Sobrescribir el stubbing para este test específico
+        doThrow(new DniAlreadyExistsException("DNI ya existe"))
+                .when(validationContext)
+                .executeValidations(any(CustomerRequestDTO.class), isNull());
 
         DniAlreadyExistsException exception = assertThrows(
                 DniAlreadyExistsException.class,
                 () -> customerService.createCustomer(dto)
         );
 
-        System.out.println("MENSAJE DE LA EXCEPCIÓN: " + exception.getMessage());
+        assertEquals("DNI ya existe", exception.getMessage());
 
-        assertTrue(exception.getMessage().contains("65321485"), "El mensaje debe contener el DNI duplicado");
-        assertTrue(exception.getMessage().toLowerCase().contains("ya existe"), "Debe mencionar que ya existe");
-        assertFalse(exception.getMessage().contains("no se encontró"), "No debe mencionar cliente no encontrado");
-
-        verify(customerRepository, times(1)).existsByDni(dto.getDni());
-        verify(customerRepository, never()).save(any());
+        verify(validationContext, times(1))
+                .executeValidations(any(CustomerRequestDTO.class), isNull());
+        verify(customerRepository, never()).save(any(Customer.class));
     }
 
-    // CP-CS07: Actualiza cliente cuando existe y DNI no duplicado
+    // CP-CS07: Actualiza cliente cuando las validaciones pasan
     @Test
-    void updateCustomer_shouldUpdateWhenExistsAndDniNotDuplicated() {
-        // Arrange: cliente actual en base de datos
+    void updateCustomer_shouldUpdateCustomerWhenExistsAndValidationsPass() {
+        // Arrange
         String customerId = "1";
+        CustomerRequestDTO updateDTO = new CustomerRequestDTO();
+        updateDTO.setName("Juan Actualizado");
+        updateDTO.setLastname("Perez");
+        updateDTO.setDni("12345678");
+        updateDTO.setEmail("juan.actualizado@example.com");
+        updateDTO.setRegisteredDate(LocalDate.now().toString());
+
         Customer existingCustomer = new Customer();
         existingCustomer.setId(customerId);
-        existingCustomer.setName("Pepito Pedraza");
-        existingCustomer.setDni("10203040");
-        existingCustomer.setEmail("pepito_pedraza@gmail.com");
+        existingCustomer.setName("Juan");
+        existingCustomer.setLastName("Perez");
+        existingCustomer.setDni("12345678");
+        existingCustomer.setEmail("juan@example.com");
+        existingCustomer.setRegisteredDate(LocalDate.now());
 
-        CustomerRequestDTO updateDto = new CustomerRequestDTO();
-        updateDto.setName("Pepito P. Actualizado");
-        updateDto.setLastname("Pedraza");
-        updateDto.setDni("10203040"); // nuevo DNI, no duplicado
-        updateDto.setEmail("pepito_pedraza@gmail.com");
+        Customer updatedCustomer = new Customer();
+        updatedCustomer.setId(customerId);
+        updatedCustomer.setName("Juan Actualizado");
+        updatedCustomer.setLastName("Perez");
+        updatedCustomer.setDni("12345678");
+        updatedCustomer.setEmail("juan.actualizado@example.com");
+        updatedCustomer.setRegisteredDate(LocalDate.now());
 
-        // Arrange: simulamos que no hay duplicado
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
-        when(customerRepository.existsByDniAndIdNot("10203040", customerId))
-                .thenReturn(false);
-        when(customerRepository.save(any(Customer.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
+        when(customerRepository.save(any(Customer.class))).thenReturn(updatedCustomer);
 
         // Act
-        CustomerResponseDTO result = customerService.updateCustomer(customerId, updateDto);
+        CustomerResponseDTO result = customerService.updateCustomer(customerId, updateDTO);
 
         // Assert
-        assertNotNull(result, "La respuesta no debe ser nula");
-        assertEquals("Pepito P. Actualizado", result.getName());
-        assertEquals("10203040", result.getDni());
-        assertEquals("pepito_pedraza@gmail.com", result.getEmail());
+        assertNotNull(result);
+        assertEquals("1", result.getId());
+        assertEquals("Juan Actualizado", result.getName());
+        assertEquals("Perez", result.getLastName());
+        assertEquals("12345678", result.getDni());
+        assertEquals("juan.actualizado@example.com", result.getEmail());
 
-        // Verify: métodos correctos
-        verify(customerRepository, times(1)).findById(customerId);
-        verify(customerRepository, times(1)).existsByDniAndIdNot("10203040", customerId);
-        verify(customerRepository, times(1)).save(any(Customer.class));
+        // Verify
+        verify(customerRepository, times(1))
+                .findById(customerId);
+        verify(validationContext, times(1))
+                .executeValidations(any(CustomerRequestDTO.class), eq(customerId));
+        verify(customerRepository, times(1))
+                .save(any(Customer.class));
     }
 
     // CP-CS08: Lanza excepción cuando cliente no existe al actualizar
     @Test
-    void updateCustomer_shouldThrowExceptionWhenCustomerDoesNotExist() {
+    void updateCustomer_shouldThrowWhenCustomerNotFound() {
         // Arrange: ID de cliente inexistente
         String customerId = "99";
 
@@ -263,12 +279,13 @@ class CustomerServiceTest {
 
         // Verify: se consultó por ID, pero no se intentó guardar
         verify(customerRepository, times(1)).findById(customerId);
-        verify(customerRepository, never()).save(any());
+        verify(validationContext, never()).executeValidations(any(), any());
+        verify(customerRepository, never()).save(any(Customer.class));
     }
 
-    // CP-CS09: Lanza excepción cuando DNI está duplicado
+    // CP-CS09: Lanza excepción cuando validaciones fallan
     @Test
-    void updateCustomer_DuplicateDNI_ThrowsException() {
+    void updateCustomer_shouldThrowWhenValidationFails() {
         String id = "123";
         CustomerRequestDTO dto = new CustomerRequestDTO();
         dto.setDni("12345678");
@@ -281,10 +298,18 @@ class CustomerServiceTest {
         existingCustomer.setId(id);
 
         when(customerRepository.findById(id)).thenReturn(java.util.Optional.of(existingCustomer));
-        when(customerRepository.existsByDniAndIdNot(dto.getDni(), id)).thenReturn(true);
+        doThrow(new DniAlreadyExistsException("DNI ya existe"))
+                .when(validationContext)
+                .executeValidations(any(CustomerRequestDTO.class), eq(id));
 
         DniAlreadyExistsException ex = assertThrows(DniAlreadyExistsException.class,
                 () -> customerService.updateCustomer(id, dto));
+
+        verify(customerRepository, times(1))
+                .findById(id);
+        verify(validationContext, times(1))
+                .executeValidations(any(CustomerRequestDTO.class), eq(id));
+        verify(customerRepository, never()).save(any(Customer.class));
     }
 
     // CP-CS10: Elimina cliente cuando no tiene cuentas activas
