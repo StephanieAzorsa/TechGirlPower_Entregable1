@@ -2,20 +2,15 @@ package com.nttdata.customerservice.service.impl;
 
 import com.nttdata.customerservice.dto.CustomerRequestDTO;
 import com.nttdata.customerservice.dto.CustomerResponseDTO;
-import com.nttdata.customerservice.exception.CustomerHasActiveAccountsException;
 import com.nttdata.customerservice.exception.CustomerNotFoundException;
 import com.nttdata.customerservice.exception.DniAlreadyExistsException;
 import com.nttdata.customerservice.mapper.CustomerMapper;
 import com.nttdata.customerservice.model.Customer;
 import com.nttdata.customerservice.repository.CustomerRepository;
+import com.nttdata.customerservice.service.AccountValidationService;
 import com.nttdata.customerservice.service.CustomerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -24,7 +19,7 @@ import java.util.List;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final RestTemplate restTemplate;
+    private final AccountValidationService accountValidationService;
 
     @Override
     public List<CustomerResponseDTO> getCustomers() {
@@ -36,8 +31,8 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerResponseDTO getCustomerById(String id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Cliente no encontrado con ID: " + id));
+                .orElseThrow(() -> new CustomerNotFoundException("El cliente con ID " +
+                        "[" + id + "] no se encontró"));
 
         return CustomerMapper.toDTO(customer);
     }
@@ -76,22 +71,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void deleteCustomer(String id) {
-        String accountsServiceUrl = "http://account-service/api/v1/accounts/customer/" + id;
-
-        try {
-            ResponseEntity<List> response = restTemplate
-                    .getForEntity(accountsServiceUrl, List.class);
-
-            if (response.getStatusCode().is2xxSuccessful() &&
-                    response.getBody() != null &&
-                    !response.getBody().isEmpty()) {
-                throw new CustomerHasActiveAccountsException("No se puede eliminar el " +
-                        "cliente porque tiene cuentas activas");
-            }
-            customerRepository.deleteById(id);
-
-        } catch (HttpClientErrorException.NotFound ex) {
-            customerRepository.deleteById(id);
-        }
+        accountValidationService.validateCustomerHasNoAccounts(id);
+        customerRepository.deleteById(id);
     }
 }
