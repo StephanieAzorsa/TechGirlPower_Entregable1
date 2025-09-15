@@ -179,22 +179,19 @@ public class AccountServiceImplTest {
     @Test
     void createAccount_ShouldCreateAccount_WhenCustomerExists() {
         // Arrange
-        String accountId = "a1b2c3d4-e5f6-7890-1234-ef1234567893";
+        String accountId = "12";
 
         AccountRequestDTO request = new AccountRequestDTO();
         request.setInitialBalance(BigDecimal.valueOf(100.0));
         request.setAccountType(AccountType.AHORROS);
         request.setCustomerId("customer-1");
 
-        Account savedAccount = new Account(
-                accountId,
-                "1000000001",
-                BigDecimal.valueOf(100.0),
-                AccountType.AHORROS,
-                "customer-1"
-        );
-
-        when(accountRepository.save(any(Account.class))).thenReturn(savedAccount);
+        when(accountRepository.save(any(Account.class)))
+                .thenAnswer(invocation -> {
+                    Account acc = invocation.getArgument(0);
+                    acc.setId("12"); // se asigna un ID manual
+                    return acc;
+                });
 
         // Act
         AccountResponseDTO result = accountService.createAccount(request);
