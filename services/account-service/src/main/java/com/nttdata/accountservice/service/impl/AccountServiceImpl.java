@@ -68,7 +68,8 @@ public class AccountServiceImpl implements AccountService {
         if (accountRequestDTO.getInitialBalance().compareTo(new BigDecimal("0.01")) < 0)
             throw new InsufficientBalanceException("El saldo inicial debe ser mayor a 0");
 
-        String customerServiceUrl = "http://localhost:4000/api/v1/customers/" + accountRequestDTO.getCustomerId();
+        String customerServiceUrl = "http://localhost:8082/api/v1/customers/"
+                + accountRequestDTO.getCustomerId();
 
         try {
             restTemplate.getForEntity(customerServiceUrl, Object.class);
@@ -122,7 +123,8 @@ public class AccountServiceImpl implements AccountService {
     public AccountResponseDTO withdraw(String accountId,
                                        TransactionRequestDTO transactionRequestDTO) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountNotFoundException("Cuenta no encontrada con ID: " + accountId));
+                .orElseThrow(() -> new AccountNotFoundException(
+                        "Cuenta no encontrada con ID: " + accountId));
 
         BigDecimal newBalance = account.getBalance().subtract(transactionRequestDTO.getAmount());
 
