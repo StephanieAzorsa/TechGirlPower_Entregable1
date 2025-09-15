@@ -4,6 +4,7 @@ import com.nttdata.accountservice.dto.AccountRequestDTO;
 import com.nttdata.accountservice.dto.AccountResponseDTO;
 import com.nttdata.accountservice.dto.TransactionRequestDTO;
 import com.nttdata.accountservice.service.AccountService;
+import com.nttdata.accountservice.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
+    private final TransactionService transactionService;
 
     @GetMapping
     public ResponseEntity<List<AccountResponseDTO>> getAllAccounts() {
@@ -59,7 +61,7 @@ public class AccountController {
             @PathVariable String accountId,
             @Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
 
-        AccountResponseDTO updatedAccount = accountService
+        AccountResponseDTO updatedAccount = transactionService
                 .deposit(accountId, transactionRequestDTO);
 
         return ResponseEntity.ok(updatedAccount);
@@ -70,7 +72,9 @@ public class AccountController {
             @PathVariable String accountId,
             @Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
 
-        AccountResponseDTO updatedAccount = accountService.withdraw(accountId, transactionRequestDTO);
+        AccountResponseDTO updatedAccount = transactionService
+                .withdraw(accountId, transactionRequestDTO);
+
         return ResponseEntity.ok(updatedAccount);
     }
 
