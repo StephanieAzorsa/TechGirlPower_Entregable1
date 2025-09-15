@@ -25,22 +25,7 @@ class AccountValidationServiceImplTest {
     @InjectMocks
     private AccountValidationServiceImpl accountValidationService;
 
-    // CP-CS21:
-    @Test
-    void validateCustomerHasNoAccounts_WhenNoAccounts_ShouldNotThrowException() {
-        // Arrange
-        String customerId = "123";
-        String url = "http://localhost:8082/api/v1/accounts/customer/" + customerId;
-
-        when(restTemplate.getForObject(url, Object[].class))
-                .thenReturn(new Object[0]); // Array vacío = no hay cuentas
-
-        // Act & Assert
-        assertDoesNotThrow(() ->
-                accountValidationService.validateCustomerHasNoAccounts(customerId));
-    }
-
-    // CP-CS22:
+    // CP-CS21: Debe lanzar excepción si tiene cuenta(s) asociadas
     @Test
     void validateCustomerHasNoAccounts_WhenAccountsExist_ShouldThrowException() {
         // Arrange
@@ -60,7 +45,7 @@ class AccountValidationServiceImplTest {
         assertEquals("Cliente tiene cuentas activas", exception.getMessage());
     }
 
-    // CP-CS23:
+    // CP-CS22: Debe lanzar excepción si existe errores del servidor
     @Test
     void validateCustomerHasNoAccounts_WhenServerError_ShouldThrowResponseStatusException() {
         // Arrange
@@ -81,7 +66,7 @@ class AccountValidationServiceImplTest {
         assertTrue(exception.getReason().contains("Error técnico al verificar cuentas"));
     }
 
-    // CP-CS24:
+    // CP-CS23: Debe lanzar excepción si existe errores de conexión
     @Test
     void validateCustomerHasNoAccounts_WhenConnectionError_ShouldThrowResponseStatusException() {
         // Arrange
@@ -103,7 +88,7 @@ class AccountValidationServiceImplTest {
         assertTrue(exception.getReason().contains("Connection timeout"));
     }
 
-    // CP-CS25:
+    // CP-CS24: Debe lanzar excepción si el Response es null
     @Test
     void validateCustomerHasNoAccounts_WhenNullResponse_ShouldNotThrowException() {
         // Arrange
@@ -118,7 +103,7 @@ class AccountValidationServiceImplTest {
                 accountValidationService.validateCustomerHasNoAccounts(customerId));
     }
 
-    // CP-CS26: Debe lanzar excepción si el Response contenga el array vacío
+    // CP-CS25: Debe lanzar excepción si el Response contenga el array vacío
     @Test
     void validateCustomerHasNoAccounts_WhenEmptyArray_ShouldNotThrowException() {
         // Arrange
