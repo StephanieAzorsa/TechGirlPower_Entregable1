@@ -62,7 +62,7 @@ class CustomerControllerTest {
         mockMvc.perform(post("/api/v1/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isOk()) // Nota: tu controller retorna 200 OK, no 201 Created
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is("abc123")))
                 .andExpect(jsonPath("$.name", is("Juan")))
                 .andDo(result -> {
@@ -171,6 +171,7 @@ class CustomerControllerTest {
         verify(customerService, times(1)).deleteCustomer("1");
     }
 
+    // CP-CS17: GET /api/v1/customers retorna 200 OK con lista vacía
     @Test
     void getCustomers_returnEmptyList_whenNoCustomerFoundExist() throws Exception {
         when(customerService.getCustomers()).thenReturn(Collections.emptyList());
@@ -180,7 +181,7 @@ class CustomerControllerTest {
                 .andExpect(content().json("[]"));
     }
 
-
+    // CP-CS18: GET /api/v1/customers/{id} lanza una excepción si el cliente no existe
     @Test
     void getCustomerById_throwsException_whenCustomerDoesNotExist() throws Exception {
         String id = "99";
@@ -191,6 +192,7 @@ class CustomerControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    // CP-CS19: POST /api/v1/customers lanza una excepción si DNI existe
     @Test
     void createCustomer_shouldThrowWhenDniExists() throws Exception {
         CustomerRequestDTO request = new CustomerRequestDTO();
@@ -210,6 +212,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.message").value("El DNI ya existe"));
     }
 
+    // CP-CS20: PUT /api/v1/customers/{id} lanza una excepción si el cliente no existe
     @Test
     void updateCustomer_shouldThrowExceptionWhenCustomerDoesNotExist() throws Exception {
         String customerId = "99";

@@ -13,10 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -35,7 +31,7 @@ class CustomerServiceTest {
     private CustomerRepository customerRepository;
 
     @Mock
-    private RestTemplate restTemplate;
+    private AccountValidationService accountValidationService;
 
     @InjectMocks
     private CustomerServiceImpl customerService;
@@ -86,7 +82,7 @@ class CustomerServiceTest {
     void getCustomers_returnEmptyList_whenNoCustomerFoundExist() {
         when(customerRepository.findAll()).thenReturn(Collections.emptyList());
 
-// Act: llamamos al servicio
+        // Act: llamamos al servicio
         List<CustomerResponseDTO> result = customerService.getCustomers();
 
         // Assert: verificamos que el resultado sea una lista vacía
@@ -273,8 +269,7 @@ class CustomerServiceTest {
         verify(customerRepository, never()).save(any());
     }
 
-    //DNI duplicado -Lanza excepción cuando DNI está duplicado
-    // TODO verificar test
+    // CP-CS09: Lanza excepción cuando DNI está duplicado
     @Test
     void updateCustomer_DniDuplicado_LanzaExcepcion() {
         String id = "123";
@@ -295,39 +290,38 @@ class CustomerServiceTest {
                 () -> customerService.updateCustomer(id, dto));
     }
 
-    // deleteCustomer() elimina cliente cuando no tiene cuentas activas
+    // CP-CS10: Elimina cliente cuando no tiene cuentas activas
     @Test
-    void deleteCustomer_SinCuentasActivas() {
-        String id = "123";
-        String url = "http://account-service/api/v1/accounts/customer/" + id;
-        when(restTemplate.getForEntity(url, List.class))
-                .thenThrow(HttpClientErrorException.create(
-                        HttpStatus.NOT_FOUND,
-                        "Not Found",
-                        null,
-                        null,
-                        null
-                ));
-        doNothing().when(customerRepository).deleteById(id);
-        assertDoesNotThrow(() -> customerService.deleteCustomer(id),
-                "No debe lanzar excepción al eliminar cliente sin cuentas activas");
-        verify(restTemplate, times(1)).getForEntity(url, List.class);
-        verify(customerRepository, times(1)).deleteById(id);
+    void deleteCustomer_WhenNoAccounts_ShouldDeleteCustomer() {
+        // Arrange
+        String customerId = "123e4567-e89b-12d3-a456-426614174000";
+
+        // No hacer nada cuando se valide (no hay cuentas)
+        doNothing().when(accountValidationService).validateCustomerHasNoAccounts(customerId);
+
+        // Act
+        customerService.deleteCustomer(customerId);
+
+        // Assert
+        verify(accountValidationService).validateCustomerHasNoAccounts(customerId);
+        verify(customerRepository).deleteById(customerId);
     }
 
-    // deleteCustomer() lanza excepción cuando cliente tiene cuentas activas
+    // CP-CS11: deleteCustomer() lanza excepción cuando cliente tiene cuentas activas
     @Test
-    void deleteCustomer_ConCuentasActivas_LanzaExcepcion() {
-        String id = "123";
-        String url = "http://account-service/api/v1/accounts/customer/" + id;
-        ResponseEntity<List> response = new ResponseEntity<>(List.of("cuenta1"), HttpStatus.OK);
-        when(restTemplate.getForEntity(eq(url), eq(List.class))).thenReturn(response);
-        CustomerHasActiveAccountsException ex = assertThrows(CustomerHasActiveAccountsException.class,
-                () -> customerService.deleteCustomer(id),
-                "Se esperaba excepción cuando el cliente tiene cuentas activas");
-        assertTrue(ex.getMessage().contains("No se puede eliminar el cliente"),
-                "El mensaje debe indicar que no se puede eliminar por cuentas activas");
-        verify(restTemplate, times(1)).getForEntity(url, List.class);
-        verify(customerRepository, never()).deleteById(anyString());
+    void deleteCustomer_WhenHasActiveAccounts_ShouldThrowException() {
+        // Arrange
+        String customerId = "123e4567-e89b-12d3-a456-426614174001";
+
+        // Simular que hay cuentas activas
+        doThrow(new CustomerHasActiveAccountsException("Cliente tiene cuentas activas"))
+                .when(accountValidationService).validateCustomerHasNoAccounts(customerId);
+
+        // Act & Assert
+        assertThrows(CustomerHasActiveAccountsException.class, () ->
+                customerService.deleteCustomer(customerId));
+
+        // Verificar que NO se intentó eliminar
+        verify(customerRepository, never()).deleteById(customerId);
     }
 }
