@@ -28,7 +28,7 @@ public class CustomerController {
 
         CustomerResponseDTO customerResponseDTO = customerService
                 .createCustomer(customerRequestDTO);
-        return ResponseEntity.status(201).body(customerResponseDTO);
+        return ResponseEntity.ok().body(customerResponseDTO);
     }
 
     @GetMapping
