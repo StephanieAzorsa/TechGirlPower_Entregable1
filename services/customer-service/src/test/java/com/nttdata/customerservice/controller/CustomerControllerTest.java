@@ -189,7 +189,7 @@ class CustomerControllerTest {
                 .thenThrow(new CustomerNotFoundException("Cliente no encontrado con ID: 99"));
 
         mockMvc.perform(get("/api/v1/customers/{id}", id))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     // CP-CS19: POST /api/v1/customers lanza una excepción si DNI existe
@@ -229,7 +229,7 @@ class CustomerControllerTest {
         mockMvc.perform(put("/api/v1/customers/{id}", customerId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Cliente no encontrado"));
     }
 }
