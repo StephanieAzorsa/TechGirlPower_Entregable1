@@ -5,6 +5,7 @@ import com.nttdata.accountservice.dto.AccountResponseDTO;
 import com.nttdata.accountservice.exception.AccountNotFoundException;
 import com.nttdata.accountservice.exception.CustomerNotFoundException;
 import com.nttdata.accountservice.exception.InsufficientBalanceException;
+import com.nttdata.accountservice.factory.AccountFactory;
 import com.nttdata.accountservice.mapper.AccountMapper;
 import com.nttdata.accountservice.model.Account;
 import com.nttdata.accountservice.repository.AccountRepository;
@@ -62,26 +63,33 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public AccountResponseDTO createAccount(AccountRequestDTO accountRequestDTO) {
-
         if (accountRequestDTO.getInitialBalance().compareTo(new BigDecimal("0.01")) < 0)
             throw new InsufficientBalanceException("El saldo inicial debe ser mayor a 0");
 
-        String customerServiceUrl = "http://localhost:8082/api/v1/customers/"
-                + accountRequestDTO.getCustomerId();
-
+        // Validación externa del cliente
+        String customerServiceUrl = "http://localhost:8082/api/v1/customers/" + accountRequestDTO.getCustomerId();
         try {
             restTemplate.getForEntity(customerServiceUrl, Object.class);
         } catch (Exception ex) {
-            throw new CustomerNotFoundException("El cliente con ID " +
-                    accountRequestDTO.getCustomerId() + " no existe");
+            throw new CustomerNotFoundException("El cliente con ID " + accountRequestDTO.getCustomerId() + " no existe");
         }
 
+        // Generación de número de cuenta
         String accountNumber;
         do {
             accountNumber = AccountNumberGenerator.generateAccountNumber();
         } while (accountRepository.existsByAccountNumber(accountNumber));
 
-        Account newAccount = accountRepository.save(AccountMapper.toModel(accountRequestDTO));
+        // 🔹 Aquí entra el Factory
+        Account newAccount = AccountFactory.createAccount(
+                accountRequestDTO.getAccountType(),
+                accountNumber,
+                accountRequestDTO.getCustomerId(),
+                accountRequestDTO.getInitialBalance()
+        );
+
+        accountRepository.save(newAccount);
+
         return AccountMapper.toDTO(newAccount);
     }
 
