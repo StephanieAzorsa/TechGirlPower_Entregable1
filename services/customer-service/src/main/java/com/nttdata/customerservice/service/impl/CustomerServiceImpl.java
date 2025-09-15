@@ -3,12 +3,12 @@ package com.nttdata.customerservice.service.impl;
 import com.nttdata.customerservice.dto.CustomerRequestDTO;
 import com.nttdata.customerservice.dto.CustomerResponseDTO;
 import com.nttdata.customerservice.exception.CustomerNotFoundException;
-import com.nttdata.customerservice.exception.DniAlreadyExistsException;
 import com.nttdata.customerservice.mapper.CustomerMapper;
 import com.nttdata.customerservice.model.Customer;
 import com.nttdata.customerservice.repository.CustomerRepository;
 import com.nttdata.customerservice.service.AccountValidationService;
 import com.nttdata.customerservice.service.CustomerService;
+import com.nttdata.customerservice.service.strategy.ValidationContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +20,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final AccountValidationService accountValidationService;
+    private final ValidationContext validationContext;
 
     @Override
     public List<CustomerResponseDTO> getCustomers() {
@@ -39,10 +40,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponseDTO createCustomer(CustomerRequestDTO customerRequestDTO) {
-        if (customerRepository.existsByDni(customerRequestDTO.getDni())) {
-            throw new DniAlreadyExistsException("Un cliente con este DNI ya existe "
-                    + customerRequestDTO.getDni());
-        }
+        // Ejecutar todas las validaciones (para creación, customerId es null)
+        validationContext.executeValidations(customerRequestDTO, null);
 
         Customer newCustomer = customerRepository
                 .save(CustomerMapper.toModel(customerRequestDTO));
@@ -51,14 +50,16 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerResponseDTO updateCustomer(String id, CustomerRequestDTO customerRequestDTO) {
-        Customer customer = customerRepository.findById(id).orElseThrow(
-                () -> new CustomerNotFoundException("El cliente con ID [" + id + "] no se encontró"));
+    public CustomerResponseDTO updateCustomer(
+            String id,
+            CustomerRequestDTO customerRequestDTO) {
 
-        if (customerRepository.existsByDniAndIdNot(customerRequestDTO.getDni(), id)) {
-            throw new DniAlreadyExistsException("Un cliente con este DNI ya existe "
-                    + customerRequestDTO.getDni());
-        }
+        Customer customer = customerRepository.findById(id).orElseThrow(
+                () -> new CustomerNotFoundException("El cliente con ID " +
+                        "[" + id + "] no se encontró"));
+
+        // Ejecutar validaciones (para actualización, pasamos el ID)
+        validationContext.executeValidations(customerRequestDTO, id);
 
         customer.setName(customerRequestDTO.getName());
         customer.setLastName(customerRequestDTO.getLastname());
