@@ -17,7 +17,7 @@ calidad y buenas prácticas de programación.
 | 1          | Java 8/11, MySQL, UML                                              | Monolítica     |
 | 2          | Spring Boot, Spring Cloud, Spring Data JPA, MySQL, OpenAPI         | Microservicios |
 | 3          | Spring Boot, Spring Webflux, Spring Data Reactive MongoDB, OpenAPI | Microservicios |
-| 4          | Por definir                                                        | Por definir    |
+| 4          | JUnit 5, Mockito, Spring Boot Test, Coverage                       | Microservicios |
 
 ## 📊 Descripción de Ramas
 
@@ -30,7 +30,7 @@ calidad y buenas prácticas de programación.
 | Entregable-1 | Versión entregada del Proyecto I (Java + MySQL)             |
 | Entregable-2 | Versión entregada del Proyecto II (Microservices + MySQL)   |
 | Entregable-3 | Versión entregada del Proyecto III (Microservice + MongoDB) |
-| Entregable-4 | Por definir                                                 |            
+| Entregable-4 | Pruebas Unitarias (JUnit + Mockito)                         |            
 
 ## 👥 Colaboradoras
 
