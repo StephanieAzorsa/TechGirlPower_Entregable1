@@ -3,13 +3,6 @@
 Proyecto incremental de un sistema bancario desarrollado durante el bootcamp, evolucionando desde una aplicación monolítica en Java hasta una arquitectura de
 microservicios con Spring Boot.
 
-## 📋 Descripción del Proyecto
-
-Este conjunto de proyectos plantea el desarrollo progresivo de un sistema integral para el sector bancario, orientado a la gestión de clientes, cuentas
-bancarias y transacciones financieras. A través de una serie de etapas, cada una más compleja que la anterior, se aplican y refuerzan conocimientos clave en
-diseño orientado a objetos, arquitectura basada en microservicios, bases de datos relacionales y no relacionales, desarrollo reactivo, aseguramiento de la
-calidad y buenas prácticas de programación.
-
 ## 🛠 Stack Tecnológico por Entregable
 
 | Entregable | Tecnologías                                                        | Arquitectura   |
