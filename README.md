@@ -5,26 +5,19 @@ microservicios con Spring Boot.
 
 ## 🔹 Entregable-4: Pruebas Unitarias y Calidad de Código
 
-**Tecnologías:**  
-- JUnit 5  
-- Mockito  
-- Jacoco  
-- Checkstyle  
+*Tecnologías:*  JUnit 5, Mockito, Jacoco y Checkstyle  
 
-**Arquitectura:**  
-- Microservicios (`customer-service`, `account-service`)  
+*Arquitectura:*  Microservicios (customer-service, account-service y transaction-service)  
 
-**Funcionalidades probadas:**  
+*Funcionalidades probadas:*  
+
 -  Validación de creación de cuentas (saldo inicial mayor a 0, cliente existente)  
 -  Operaciones sobre cuentas: depósitos, retiros (cuentas de ahorro y corriente con sobregiro)  
--  Manejo de excepciones personalizadas:  
-  - `AccountNotFoundException`  
-  - `CustomerNotFoundException`  
-  - `InsufficientBalanceException`  
-  - `MethodArgumentNotValidException`  
--  Cobertura de pruebas con **Jacoco**  
--  Estándares de calidad de código con **Checkstyle**
-
+-  Manejo de excepciones personalizadas
+-  Cobertura de pruebas con *Jacoco*  
+-  Estándares de calidad de código con *Checkstyle*
+-  Aplicación de los Principios SOLID
+-  Aplicacion de Patrones de diseño: Factory method en account-service y Strategy en customer-service
 
 ## 📁 Project Structure
 
