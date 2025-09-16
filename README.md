@@ -17,7 +17,7 @@ calidad y buenas prácticas de programación.
 | 1          | Java 8/11, MySQL, UML                                              | Monolítica     |
 | 2          | Spring Boot, Spring Cloud, Spring Data JPA, MySQL, OpenAPI         | Microservicios |
 | 3          | Spring Boot, Spring Webflux, Spring Data Reactive MongoDB, OpenAPI | Microservicios |
-| 4          | JUnit 5, Mockito, Spring Boot Test, Coverage                       | Microservicio  |
+| 4          | JUnit 5, Mockito, Jacoco, Checkstyle                               | Microservicio  |
 
 ## 📊 Descripción de Ramas
 
