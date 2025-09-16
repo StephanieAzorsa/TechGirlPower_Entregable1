@@ -3,6 +3,28 @@
 Proyecto incremental de un sistema bancario desarrollado durante el bootcamp, evolucionando desde una aplicación monolítica en Java hasta una arquitectura de
 microservicios con Spring Boot.
 
+## 🔹 Entregable-4: Pruebas Unitarias y Calidad de Código
+
+**Tecnologías:**  
+- JUnit 5  
+- Mockito  
+- Jacoco  
+- Checkstyle  
+
+**Arquitectura:**  
+- Microservicios (`customer-service`, `account-service`)  
+
+**Funcionalidades probadas:**  
+-  Validación de creación de cuentas (saldo inicial mayor a 0, cliente existente)  
+-  Operaciones sobre cuentas: depósitos, retiros (cuentas de ahorro y corriente con sobregiro)  
+-  Manejo de excepciones personalizadas:  
+  - `AccountNotFoundException`  
+  - `CustomerNotFoundException`  
+  - `InsufficientBalanceException`  
+  - `MethodArgumentNotValidException`  
+-  Cobertura de pruebas con **Jacoco**  
+-  Estándares de calidad de código con **Checkstyle**
+
 ## 🛠 Stack Tecnológico por Entregable
 
 | Entregable | Tecnologías                                                        | Arquitectura   |
