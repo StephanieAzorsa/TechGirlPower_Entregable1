@@ -25,27 +25,40 @@ microservicios con Spring Boot.
 -  Cobertura de pruebas con **Jacoco**  
 -  Estándares de calidad de código con **Checkstyle**
 
-## 🛠 Stack Tecnológico por Entregable
 
-| Entregable | Tecnologías                                                        | Arquitectura   |
-|------------|--------------------------------------------------------------------|----------------|
-| 1          | Java 8/11, MySQL, UML                                              | Monolítica     |
-| 2          | Spring Boot, Spring Cloud, Spring Data JPA, MySQL, OpenAPI         | Microservicios |
-| 3          | Spring Boot, Spring Webflux, Spring Data Reactive MongoDB, OpenAPI | Microservicios |
-| 4          | JUnit 5, Mockito, Jacoco, Checkstyle                               | Microservicio  |
-
-## 📊 Descripción de Ramas
-
-| Rama         | Propósito                                                   |
-|--------------|-------------------------------------------------------------|
-| master       | Versión estable en producción                               | 
-| develop      | Integración para desarrollo activo                          |
-| feature/\*   | Desarrollo de nuevas funcionalidades                        |
-| hotfix/\*    | Correcciones urgentes                                       |
-| Entregable-1 | Versión entregada del Proyecto I (Java + MySQL)             |
-| Entregable-2 | Versión entregada del Proyecto II (Microservices + MySQL)   |
-| Entregable-3 | Versión entregada del Proyecto III (Microservice + MongoDB) |
-| Entregable-4 | Versión entregada del Proyecto IV (Pruebas Unitarias con JUnit y Mockito) |            
+## 📁 Project Structure
+├──project-root/
+├── services/
+│   ├── customer-service/         # Microservicio de clientes
+│   │   └── src/test/java/com/nttdata/customerservice/
+│   │       ├── controller/
+│   │       │   └── CustomerControllerTest.java
+│   │       ├── exception/
+│   │       │   └── GlobalExceptionHandlerTest.java
+│   │       └── service/
+│   │           ├── CustomerServiceTest.java
+│   │           ├── AccountValidationServiceTest.java
+│   │           └── strategy/
+│   │               ├── DniValidationStrategyTest.java
+│   │               └── ValidationContextTest.java
+│   │
+│   ├── account-service/          # Microservicio de cuentas
+│   │   └── src/test/java/com/nttdata/accountservice/
+│   │       ├── controller/
+│   │       │   └── AccountControllerTest.java
+│   │       ├── exception/
+│   │       │   └── GlobalExceptionHandlerTest.java
+│   │       └── service/
+│   │           ├── AccountServiceImplTest.java
+│   │           └── TransactionServiceImplTest.java
+│   │
+│   ├── transaction-service/      # Microservicio de transacciones
+│   │   └── src/test/java/com/nttdata/transactionservice/
+│   │       └── (tests pendientes o futuros)
+│   │
+│   └── gateway/                  # API Gateway
+│
+└── README.md       
 
 ## 👥 Colaboradoras
 
