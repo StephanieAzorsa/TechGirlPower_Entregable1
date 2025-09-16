@@ -27,6 +27,8 @@ microservicios con Spring Boot.
 
 
 ## 📁 Project Structure
+
+```
 ├──project-root/
 ├── services/
 │   ├── customer-service/         # Microservicio de clientes
@@ -58,7 +60,8 @@ microservicios con Spring Boot.
 │   │
 │   └── gateway/                  # API Gateway
 │
-└── README.md       
+└── README.md
+```    
 
 ## 👥 Colaboradoras
 
