@@ -1,10 +1,9 @@
-package com.nttdata.transactionservice;
+package com.nttdata.transactionservice.service;
 
 import com.nttdata.transactionservice.dto.TransactionRequestDTO;
 import com.nttdata.transactionservice.dto.TransactionResponseDTO;
 import com.nttdata.transactionservice.dto.TransferRequestDTO;
 import com.nttdata.transactionservice.model.TransactionType;
-import com.nttdata.transactionservice.service.TransactionContext;
 import com.nttdata.transactionservice.service.impl.TransactionServiceImpl;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
