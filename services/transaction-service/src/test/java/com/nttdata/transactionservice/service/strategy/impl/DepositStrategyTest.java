@@ -1,4 +1,4 @@
-package com.nttdata.transactionservice.strategy;
+package com.nttdata.transactionservice.service.strategy.impl;
 
 import com.nttdata.transactionservice.client.Account;
 import com.nttdata.transactionservice.client.AccountWebClient;
@@ -9,7 +9,6 @@ import com.nttdata.transactionservice.model.Transaction;
 import com.nttdata.transactionservice.model.TransactionType;
 import com.nttdata.transactionservice.repository.TransactionRepository;
 import com.nttdata.transactionservice.service.TransactionService;
-import com.nttdata.transactionservice.service.strategy.impl.DepositStrategy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
