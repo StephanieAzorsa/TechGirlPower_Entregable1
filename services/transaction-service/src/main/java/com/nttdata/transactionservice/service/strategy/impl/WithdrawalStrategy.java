@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
+// Estrategia para procesar transacciones de RETIRO.
+// Maneja la extracción de fondos de una cuenta específica.
 @Component
 @RequiredArgsConstructor
 public class WithdrawalStrategy implements TransactionStrategy<TransactionRequestDTO> {
@@ -22,6 +24,12 @@ public class WithdrawalStrategy implements TransactionStrategy<TransactionReques
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
 
+    /**
+     * Ejecuta una transacción de retiro:
+     * 1. Realiza el retiro de la cuenta mediante AccountWebClient
+     * 2. Crea y guarda el registro de transacción
+     * 3. Convierte la entidad a DTO de respuesta
+     */
     @Override
     public Mono<TransactionResponseDTO> execute(TransactionRequestDTO request) {
         return accountWebClient.withdrawBalanceAccount(request)
@@ -39,6 +47,7 @@ public class WithdrawalStrategy implements TransactionStrategy<TransactionReques
         return "RETIRO";
     }
 
+    // Crea y guarda una entidad Transaction para retiro.
     private Mono<Transaction> createAndSaveTransaction(
             TransactionRequestDTO request) {
 

@@ -15,6 +15,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
+// Estrategia para procesar transacciones de TRANSFERENCIA entre cuentas.
+// Maneja la transferencia de fondos entre una cuenta origen y una cuenta destino.
 @Component
 @RequiredArgsConstructor
 public class TransferStrategy implements TransactionStrategy<TransferRequestDTO> {
@@ -23,6 +25,13 @@ public class TransferStrategy implements TransactionStrategy<TransferRequestDTO>
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
 
+    /**
+     * Ejecuta una transacción de transferencia:
+     * 1. Realiza el retiro de la cuenta origen
+     * 2. Realiza el depósito en la cuenta destino
+     * 3. Crea y guarda el registro de transacción
+     * 4. Convierte la entidad a DTO de respuesta
+     */
     @Override
     public Mono<TransactionResponseDTO> execute(TransferRequestDTO request) {
         TransactionRequestDTO withdrawRequest = TransactionRequestDTO.builder()
@@ -51,6 +60,7 @@ public class TransferStrategy implements TransactionStrategy<TransferRequestDTO>
         return "TRANSFERENCIA";
     }
 
+    // Crea y guarda una entidad Transaction para transferencia.
     private Mono<Transaction> createAndSaveTransaction(TransferRequestDTO request) {
         Transaction transaction = Transaction.builder()
                 .transactionType(TransactionType.TRANSFERENCIA)

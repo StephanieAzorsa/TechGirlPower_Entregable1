@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
+// Estrategia para procesar transacciones de DEPÓSITO.
+// Maneja la adición de fondos a una cuenta específica.
 @Component
 @RequiredArgsConstructor
 public class DepositStrategy implements TransactionStrategy<TransactionRequestDTO> {
@@ -22,6 +24,12 @@ public class DepositStrategy implements TransactionStrategy<TransactionRequestDT
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
 
+    /**
+     * Ejecuta una transacción de depósito:
+     * 1. Realiza el depósito en la cuenta mediante AccountWebClient
+     * 2. Crea y guarda el registro de transacción
+     * 3. Convierte la entidad a DTO
+     */
     @Override
     public Mono<TransactionResponseDTO> execute(TransactionRequestDTO request) {
         return accountWebClient.depositBalanceAccount(request)
@@ -39,6 +47,7 @@ public class DepositStrategy implements TransactionStrategy<TransactionRequestDT
         return "DEPOSITO";
     }
 
+    // Crea y guarda una entidad Transaction para depósito.
     private Mono<Transaction> createAndSaveTransaction(TransactionRequestDTO request) {
         Transaction transaction = Transaction.builder()
                 .transactionType(TransactionType.DEPOSITO)
