@@ -36,8 +36,8 @@ public class TransferStrategy implements TransactionStrategy<TransferRequestDTO>
                 .build();
 
         return accountWebClient.withdrawBalanceAccount(withdrawRequest)
-                .then(accountWebClient.depositBalanceAccount(depositRequest))
-                .then(createAndSaveTransaction(request))
+                .flatMap(withdrawResponse -> accountWebClient.depositBalanceAccount(depositRequest))
+                .flatMap(depositResponse -> createAndSaveTransaction(request))
                 .map(transactionMapper::toDTO);
     }
 
