@@ -1,0 +1,139 @@
+package com.nttdata.transactionservice.service.impl;
+
+import com.nttdata.transactionservice.dto.TransactionResponseDTO;
+import com.nttdata.transactionservice.dto.TransferRequestDTO;
+import com.nttdata.transactionservice.exception.AccountNotFoundException;
+import com.nttdata.transactionservice.exception.InsufficientBalanceException;
+import com.nttdata.transactionservice.exception.TransactionExecutionException;
+import com.nttdata.transactionservice.mapper.TransactionMapper;
+import com.nttdata.transactionservice.model.Transaction;
+import com.nttdata.transactionservice.model.TransactionType;
+import com.nttdata.transactionservice.repository.TransactionRepository;
+import com.nttdata.transactionservice.service.TransactionContext;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+import java.math.BigDecimal;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+public class TransactionServiceTest {
+
+    @Mock
+    private TransactionContext transactionContext;
+
+    @Mock
+    private TransactionRepository transactionRepository;
+
+    @Mock
+    private TransactionMapper transactionMapper;
+
+    @InjectMocks
+    private TransactionServiceImpl transactionService;
+
+    // CP-TS13	registerTransfer()	Debe manejar error del WebCliente correctamente
+    @Test
+    void registerTransfer_ShouldHandleWebClientError_400() {
+        // Arrange
+        TransferRequestDTO request = TransferRequestDTO.builder()
+                .sourceAccountId("acc123")
+                .destinationAccountId("acc456")
+                .amount(new BigDecimal("100.00"))
+                .build();
+
+        WebClientResponseException webClientEx = WebClientResponseException.create(
+                400,
+                "Bad Request",
+                null, null, null
+        );
+
+        when(transactionContext.executeStrategy(any(), any()))
+                .thenReturn(Mono.error(webClientEx));
+
+        // Act & Assert
+        StepVerifier.create(transactionService.registerTransfer(request))
+                .expectError(InsufficientBalanceException.class)
+                .verify();
+
+        verify(transactionContext).executeStrategy(request, "TRANSFERENCIA");
+    }
+
+    // CP-TS14	listTransactions()	Debe listar transacciones exitosamente
+    @Test
+    void testListTransactions_Success() {
+        // Arrange
+        Transaction transaction = Transaction.builder()
+                .id("trans1")
+                .transactionType(TransactionType.DEPOSITO)
+                .amount(new BigDecimal("100.00"))
+                .build();
+
+        TransactionResponseDTO response = TransactionResponseDTO.builder()
+                .id("trans1")
+                .transactionType(TransactionType.DEPOSITO)
+                .amount(new BigDecimal("100.00"))
+                .build();
+
+        when(transactionRepository.findAll()).thenReturn(Flux.just(transaction));
+        when(transactionMapper.toDTO(any())).thenReturn(response);
+
+        // Act & Assert
+        StepVerifier.create(transactionService.listTransactions())
+                .expectNext(response)
+                .verifyComplete();
+
+        verify(transactionRepository).findAll();
+    }
+
+    // CP-TS15	handleAccountServiceError()	Debe manejar error 400 (saldo insuficiente)
+    @Test
+    void testHandleAccountServiceError_400() {
+        // Arrange
+        WebClientResponseException ex = mock(WebClientResponseException.class);
+        when(ex.getStatusCode()).thenReturn(HttpStatus.BAD_REQUEST);
+
+        // Act
+        Throwable result = transactionService.handleAccountServiceError(ex);
+
+        // Assert
+        assert result instanceof InsufficientBalanceException;
+    }
+
+    // CP-TS16	handleAccountServiceError()	Debe manejar error 404 (cuenta no encontrada)
+    @Test
+    void testHandleAccountServiceError_404() {
+        // Arrange
+        WebClientResponseException ex = mock(WebClientResponseException.class);
+        when(ex.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
+
+        // Act
+        Throwable result = transactionService.handleAccountServiceError(ex);
+
+        // Assert
+        assert result instanceof AccountNotFoundException;
+    }
+
+    // CP-TS17	handleAccountServiceError()	Debe manejar otros errores de servicio
+    @Test
+    void testHandleAccountServiceError_Other() {
+        // Arrange
+        WebClientResponseException ex = mock(WebClientResponseException.class);
+        when(ex.getStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        // Act
+        Throwable result = transactionService.handleAccountServiceError(ex);
+
+        // Assert
+        assert result instanceof TransactionExecutionException;
+    }
+}
