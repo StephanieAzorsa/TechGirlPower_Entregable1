@@ -58,7 +58,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     // Manejador de errores: convierte excepciones HTTP en excepciones de dominio específicas
-    private Throwable handleAccountServiceError(WebClientResponseException ex) {
+    public Throwable handleAccountServiceError(WebClientResponseException ex) {
         return switch (ex.getStatusCode().value()) {
             case 400 -> new InsufficientBalanceException("Saldo insuficiente o límite excedido");
             case 404 -> new AccountNotFoundException("La cuenta no existe");
