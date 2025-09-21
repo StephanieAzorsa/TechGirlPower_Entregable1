@@ -4,49 +4,69 @@ import com.nttdata.transactionservice.dto.TransactionRequestDTO;
 import com.nttdata.transactionservice.dto.TransactionResponseDTO;
 import com.nttdata.transactionservice.dto.TransferRequestDTO;
 import com.nttdata.transactionservice.model.TransactionType;
-import com.nttdata.transactionservice.service.impl.TransactionServiceImpl;
+import com.nttdata.transactionservice.service.strategy.TransactionStrategy;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class TransactionContextTest {
+    @Mock
+    private TransactionStrategy<TransactionRequestDTO> depositStrategy;
 
-    // CP-TS18 Debe ejecutar estrategia de depósito correctamente
+    @Mock
+    private TransactionStrategy<TransactionRequestDTO> withdrawalStrategy;
+
+    @Mock
+    private TransactionStrategy<TransferRequestDTO> transferStrategy;
+
+    //CP-TS18	Debe ejecutar estrategia de depósito correctamente
     @Test
     void executeStrategy_shouldExecuteDepositStrategy() {
         TransactionRequestDTO request = TransactionRequestDTO.builder()
-                .accountId("123")
-                .amount(BigDecimal.valueOf(100))
+                .accountId("acc123")
+                .amount(new BigDecimal("100.00"))
                 .build();
 
-        TransactionResponseDTO responseDTO = TransactionResponseDTO.builder()
-                .id("tx123")
+        TransactionResponseDTO response = TransactionResponseDTO.builder()
                 .transactionType(TransactionType.DEPOSITO)
-                .amount(BigDecimal.valueOf(100))
-                .date(LocalDateTime.now())
-                .sourceAccountId("123")
-                .destinationAccountId("123")
+                .amount(new BigDecimal("100.00"))
                 .build();
 
-        TransactionContext transactionContext = mock(TransactionContext.class);
-        when(transactionContext.executeStrategy(request, "DEPOSITO"))
-                .thenReturn(Mono.just(responseDTO));
+        when(depositStrategy.getSupportedType()).thenReturn(TransactionRequestDTO.class);
+        when(depositStrategy.getStrategyName()).thenReturn("DEPOSITO");
+        when(depositStrategy.execute(any())).thenReturn(Mono.just(response));
+        // mocks secundarios para evitar NPE
+        when(withdrawalStrategy.getSupportedType()).thenReturn(TransactionRequestDTO.class);
+        when(withdrawalStrategy.getStrategyName()).thenReturn("RETIRO");
+        when(transferStrategy.getSupportedType()).thenReturn(TransferRequestDTO.class);
+        when(transferStrategy.getStrategyName()).thenReturn("TRANSFERENCIA");
 
-        TransactionServiceImpl service = new TransactionServiceImpl(transactionContext, null, null);
+        TransactionContext transactionContext = new TransactionContext(List.of(
+                depositStrategy,
+                withdrawalStrategy,
+                transferStrategy));
 
-        StepVerifier.create(service.registerDeposit(request))
-                .expectNextMatches(r -> r.getTransactionType() == TransactionType.DEPOSITO)
+        StepVerifier.create(transactionContext.executeStrategy(
+                        request, "DEPOSITO"))
+                .expectNext(response)
                 .verifyComplete();
 
-        verify(transactionContext).executeStrategy(request, "DEPOSITO");
+        verify(depositStrategy).execute(request);
     }
 
-    // CP-TS19 Debe ejecutar estrategia de retiro correctamente
+    //CP-TS19	Debe ejecutar estrategia de retiro correctamente
     @Test
     void executeStrategy_shouldExecuteWithdrawStrategy() {
         TransactionRequestDTO request = TransactionRequestDTO.builder()
@@ -54,29 +74,30 @@ public class TransactionContextTest {
                 .amount(BigDecimal.valueOf(50))
                 .build();
 
-        TransactionResponseDTO responseDTO = TransactionResponseDTO.builder()
-                .id("tx124")
+        TransactionResponseDTO response = TransactionResponseDTO.builder()
                 .transactionType(TransactionType.RETIRO)
                 .amount(BigDecimal.valueOf(50))
-                .date(LocalDateTime.now())
-                .sourceAccountId("123")
-                .destinationAccountId("123")
                 .build();
 
-        TransactionContext transactionContext = mock(TransactionContext.class);
-        when(transactionContext.executeStrategy(request, "RETIRO"))
-                .thenReturn(Mono.just(responseDTO));
+        when(withdrawalStrategy.getSupportedType()).thenReturn(TransactionRequestDTO.class);
+        when(withdrawalStrategy.getStrategyName()).thenReturn("RETIRO");
+        when(withdrawalStrategy.execute(any())).thenReturn(Mono.just(response));
+        // mocks secundarios para evitar NPE
+        when(depositStrategy.getSupportedType()).thenReturn(TransactionRequestDTO.class);
+        when(depositStrategy.getStrategyName()).thenReturn("DEPOSITO");
+        when(transferStrategy.getSupportedType()).thenReturn(TransferRequestDTO.class);
+        when(transferStrategy.getStrategyName()).thenReturn("TRANSFERENCIA");
 
-        TransactionServiceImpl service = new TransactionServiceImpl(transactionContext, null, null);
+        TransactionContext transactionContext = new TransactionContext(List.of(depositStrategy, withdrawalStrategy, transferStrategy));
 
-        StepVerifier.create(service.registerWithdrawal(request))
-                .expectNextMatches(r -> r.getTransactionType() == TransactionType.RETIRO)
+        StepVerifier.create(transactionContext.executeStrategy(request, "RETIRO"))
+                .expectNext(response)
                 .verifyComplete();
 
-        verify(transactionContext).executeStrategy(request, "RETIRO");
+        verify(withdrawalStrategy).execute(request);
     }
 
-    // CP-TS20 Debe ejecutar estrategia de transferencia correctamente
+    //CP-TS20	Debe ejecutar estrategia de transferencia correctamente
     @Test
     void executeStrategy_shouldExecuteTransferStrategy() {
         TransferRequestDTO request = TransferRequestDTO.builder()
@@ -85,29 +106,30 @@ public class TransactionContextTest {
                 .amount(BigDecimal.valueOf(200))
                 .build();
 
-        TransactionResponseDTO responseDTO = TransactionResponseDTO.builder()
-                .id("tx125")
+        TransactionResponseDTO response = TransactionResponseDTO.builder()
                 .transactionType(TransactionType.TRANSFERENCIA)
                 .amount(BigDecimal.valueOf(200))
-                .date(LocalDateTime.now())
-                .sourceAccountId("123")
-                .destinationAccountId("456")
                 .build();
 
-        TransactionContext transactionContext = mock(TransactionContext.class);
-        when(transactionContext.executeStrategy(request, "TRANSFERENCIA"))
-                .thenReturn(Mono.just(responseDTO));
+        when(transferStrategy.getSupportedType()).thenReturn(TransferRequestDTO.class);
+        when(transferStrategy.getStrategyName()).thenReturn("TRANSFERENCIA");
+        when(transferStrategy.execute(any())).thenReturn(Mono.just(response));
+        // mocks secundarios para evitar NPE
+        when(depositStrategy.getSupportedType()).thenReturn(TransactionRequestDTO.class);
+        when(depositStrategy.getStrategyName()).thenReturn("DEPOSITO");
+        when(withdrawalStrategy.getSupportedType()).thenReturn(TransactionRequestDTO.class);
+        when(withdrawalStrategy.getStrategyName()).thenReturn("RETIRO");
 
-        TransactionServiceImpl service = new TransactionServiceImpl(transactionContext, null, null);
+        TransactionContext transactionContext = new TransactionContext(List.of(depositStrategy, withdrawalStrategy, transferStrategy));
 
-        StepVerifier.create(service.registerTransfer(request))
-                .expectNextMatches(r -> r.getTransactionType() == TransactionType.TRANSFERENCIA)
+        StepVerifier.create(transactionContext.executeStrategy(request, "TRANSFERENCIA"))
+                .expectNext(response)
                 .verifyComplete();
 
-        verify(transactionContext).executeStrategy(request, "TRANSFERENCIA");
+        verify(transferStrategy).execute(request);
     }
 
-    // CP-TS21 Debe manejar error cuando no encuentra estrategia
+    //CP-TS21	Debe manejar error cuando no encuentra estrategia
     @Test
     void executeStrategy_shouldThrowWhenStrategyNotFound() {
         TransactionRequestDTO request = TransactionRequestDTO.builder()
@@ -115,20 +137,20 @@ public class TransactionContextTest {
                 .amount(BigDecimal.valueOf(100))
                 .build();
 
-        TransactionContext transactionContext = mock(TransactionContext.class);
-        when(transactionContext.executeStrategy(request, "DEPOSITO"))
-                .thenReturn(Mono.error(new IllegalArgumentException("Estrategia no encontrada")));
+        when(withdrawalStrategy.getSupportedType()).thenReturn(TransactionRequestDTO.class);
+        when(withdrawalStrategy.getStrategyName()).thenReturn("RETIRO");
+        when(transferStrategy.getSupportedType()).thenReturn(TransferRequestDTO.class);
+        when(transferStrategy.getStrategyName()).thenReturn("TRANSFERENCIA");
 
-        TransactionServiceImpl service = new TransactionServiceImpl(transactionContext, null, null);
+        TransactionContext transactionContext = new TransactionContext(List.of(withdrawalStrategy, transferStrategy));
 
-        StepVerifier.create(service.registerDeposit(request))
-                .expectErrorMessage("Estrategia no encontrada")
+        StepVerifier.create(transactionContext.executeStrategy(request, "DEPOSITO"))
+                .expectErrorMatches(e -> e instanceof IllegalArgumentException &&
+                        e.getMessage().contains("No se encontró estrategia"))
                 .verify();
-
-        verify(transactionContext).executeStrategy(request, "DEPOSITO");
     }
 
-    // CP-TS22 Debe manejar error cuando hay tipo incompatible
+    //CP-TS22	Debe manejar error cuando hay tipo incompatible
     @Test
     void executeStrategy_shouldThrowWhenTypeIncompatible() {
         TransactionRequestDTO request = TransactionRequestDTO.builder()
@@ -136,16 +158,17 @@ public class TransactionContextTest {
                 .amount(BigDecimal.valueOf(100))
                 .build();
 
-        TransactionContext transactionContext = mock(TransactionContext.class);
-        when(transactionContext.executeStrategy(request, "DEPOSITO"))
-                .thenReturn(Mono.error(new IllegalArgumentException("Tipo incompatible")));
+        @SuppressWarnings("unchecked")
+        TransactionStrategy<TransactionRequestDTO> incompatibleStrategy = mock(TransactionStrategy.class);
 
-        TransactionServiceImpl service = new TransactionServiceImpl(transactionContext, null, null);
+        when(incompatibleStrategy.getSupportedType()).thenReturn((Class) TransferRequestDTO.class);
+        when(incompatibleStrategy.getStrategyName()).thenReturn("DEPOSITO");
 
-        StepVerifier.create(service.registerDeposit(request))
-                .expectErrorMessage("Tipo incompatible")
+        TransactionContext transactionContext = new TransactionContext(List.of(incompatibleStrategy));
+
+        StepVerifier.create(transactionContext.executeStrategy(request, "DEPOSITO"))
+                .expectErrorMatches(e -> e instanceof IllegalArgumentException &&
+                        e.getMessage().contains("No se encontró estrategia"))
                 .verify();
-
-        verify(transactionContext).executeStrategy(request, "DEPOSITO");
     }
 }
