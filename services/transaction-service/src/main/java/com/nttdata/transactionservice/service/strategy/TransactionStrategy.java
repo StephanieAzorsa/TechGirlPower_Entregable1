@@ -9,6 +9,5 @@ public interface TransactionStrategy<T> {
 
     Class<T> getSupportedType();
 
-    // Identificador único de la estrategia
     String getStrategyName();
 }
