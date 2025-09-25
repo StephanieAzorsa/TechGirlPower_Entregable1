@@ -1,5 +1,6 @@
 package com.nttdata.transactionservice.service.impl;
 
+import com.nttdata.transactionservice.dto.TransactionRequestDTO;
 import com.nttdata.transactionservice.dto.TransactionResponseDTO;
 import com.nttdata.transactionservice.dto.TransferRequestDTO;
 import com.nttdata.transactionservice.exception.AccountNotFoundException;
@@ -22,6 +23,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -40,6 +42,110 @@ public class TransactionServiceTest {
 
     @InjectMocks
     private TransactionServiceImpl transactionService;
+
+
+    /**
+     * CP-TS08 - registerDeposit() - Debe registrar depósito exitosamente
+     */
+    @Test
+    void testRegisterDeposit_Success() {
+        TransactionRequestDTO request = new TransactionRequestDTO();
+        TransactionResponseDTO responseDTO = TransactionResponseDTO.builder()
+                .id("TX100")
+                .amount(new BigDecimal("100"))
+                .transactionType(null)
+                .date(LocalDateTime.now())
+                .sourceAccountId("123")
+                .destinationAccountId(null)
+                .build();
+
+        when(transactionContext.executeStrategy(request, "DEPOSITO"))
+                .thenReturn(Mono.just(responseDTO));
+
+        StepVerifier.create(transactionService.registerDeposit(request))
+                .expectNext(responseDTO)
+                .verifyComplete();
+    }
+
+    /**
+     * CP-TS09 - registerDeposit() - Debe manejar error del WebCliente correctamente
+     */
+    @Test
+    void testRegisterDeposit_WebClientError() {
+        TransactionRequestDTO request = new TransactionRequestDTO();
+
+        WebClientResponseException ex = WebClientResponseException.create(400, "Bad Request", null, null, null);
+
+        when(transactionContext.executeStrategy(request, "DEPOSITO"))
+                .thenReturn(Mono.error(ex));
+
+        StepVerifier.create(transactionService.registerDeposit(request))
+                .expectError(InsufficientBalanceException.class)
+                .verify();
+    }
+
+    /**
+     * CP-TS10 - registerWithdrawal() - Debe registrar retiro exitosamente
+     */
+    @Test
+    void testRegisterWithdrawal_Success() {
+        TransactionRequestDTO request = new TransactionRequestDTO();
+        TransactionResponseDTO responseDTO = TransactionResponseDTO.builder()
+                .id("TX101")
+                .amount(new BigDecimal("50"))
+                .transactionType(null)
+                .date(LocalDateTime.now())
+                .sourceAccountId("123")
+                .destinationAccountId(null)
+                .build();
+
+        when(transactionContext.executeStrategy(request, "RETIRO"))
+                .thenReturn(Mono.just(responseDTO));
+
+        StepVerifier.create(transactionService.registerWithdrawal(request))
+                .expectNext(responseDTO)
+                .verifyComplete();
+    }
+
+    /**
+     * CP-TS11 - registerWithdrawal() - Debe manejar error del WebCliente correctamente
+     */
+    @Test
+    void testRegisterWithdrawal_WebClientError() {
+        TransactionRequestDTO request = new TransactionRequestDTO();
+
+        WebClientResponseException ex = WebClientResponseException.create(404, "Not Found", null, null, null);
+
+        when(transactionContext.executeStrategy(request, "RETIRO"))
+                .thenReturn(Mono.error(ex));
+
+        StepVerifier.create(transactionService.registerWithdrawal(request))
+                .expectError(AccountNotFoundException.class)
+                .verify();
+    }
+
+    /**
+     * CP-TS12 - registerTransfer() - Debe registrar transferencia exitosamente
+     */
+    @Test
+    void testRegisterTransfer_Success() {
+        TransferRequestDTO request = new TransferRequestDTO();
+        TransactionResponseDTO responseDTO = TransactionResponseDTO.builder()
+                .id("TX102")
+                .amount(new BigDecimal("200"))
+                .transactionType(null)
+                .date(LocalDateTime.now())
+                .sourceAccountId("123")
+                .destinationAccountId("456")
+                .build();
+
+        when(transactionContext.executeStrategy(request, "TRANSFERENCIA"))
+                .thenReturn(Mono.just(responseDTO));
+
+        StepVerifier.create(transactionService.registerTransfer(request))
+                .expectNext(responseDTO)
+                .verifyComplete();
+    }
 
     // CP-TS13	registerTransfer()	Debe manejar error del WebCliente correctamente
     @Test
