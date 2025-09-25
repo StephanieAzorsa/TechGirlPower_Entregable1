@@ -2,15 +2,21 @@ package com.nttdata.transactionservice.controller;
 
 import com.nttdata.transactionservice.dto.TransactionRequestDTO;
 import com.nttdata.transactionservice.dto.TransactionResponseDTO;
+import com.nttdata.transactionservice.dto.TransferRequestDTO;
 import com.nttdata.transactionservice.model.TransactionType;
 import com.nttdata.transactionservice.service.TransactionService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -30,6 +36,16 @@ public class TransactionControllerTest {
 
     @InjectMocks
     private TransactionController transactionController;
+
+    private WebTestClient webTestClient;
+
+    @BeforeEach
+    void setUp() {
+        transactionService = Mockito.mock(TransactionService.class);
+        TransactionController transactionController = new TransactionController(transactionService);
+
+        webTestClient = WebTestClient.bindToController(transactionController).build();
+    }
 
     // CP-TS01: Debe procesar depósito exitosamente 200 OK
     @Test
@@ -139,6 +155,87 @@ public class TransactionControllerTest {
         assertNull(response.getBody(), "El body debería ser null en caso de error");
 
         verify(transactionService, times(1)).registerWithdrawal(any(TransactionRequestDTO.class));
+    }
+    /**
+     * CP-TS05 - POST /transactions/transfer - Debe procesar transferencia exitosamente (200 OK)
+     */
+    @Test
+    void testRegisterTransfer_Success() {
+        TransactionResponseDTO mockResponse = TransactionResponseDTO.builder()
+                .id("TX123")
+                .transactionType(TransactionType.TRANSFERENCIA) // asegúrate de usar tu enum
+                .amount(new BigDecimal("100"))
+                .date(LocalDateTime.now())
+                .sourceAccountId("123")
+                .destinationAccountId("456")
+                .build();
+
+        when(transactionService.registerTransfer(any(TransferRequestDTO.class)))
+                .thenReturn(Mono.just(mockResponse));
+
+        webTestClient.post()
+                .uri("/api/v1/transactions/transfer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"sourceAccountId\":\"123\",\"destinationAccountId\":\"456\",\"amount\":100}")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo("TX123")
+                .jsonPath("$.transactionType").isEqualTo("TRANSFERENCIA")
+                .jsonPath("$.amount").isEqualTo(100)
+                .jsonPath("$.sourceAccountId").isEqualTo("123")
+                .jsonPath("$.destinationAccountId").isEqualTo("456");
+    }
+
+    /**
+     * CP-TS06 - POST /transactions/transfer - Debe manejar error de validación (400 Bad Request)
+     */
+    @Test
+    void testRegisterTransfer_BadRequest() {
+        // Si el servicio no retorna nada, el controller debería responder 400
+        webTestClient.post()
+                .uri("/api/v1/transactions/transfer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"sourceAccountId\":\"\",\"destinationAccountId\":\"\",\"amount\":0}")
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    /**
+     * CP-TS07 - GET /transactions/record - Debe listar transacciones exitosamente (200 OK)
+     */
+    @Test
+    void testListTransactions_Success() {
+        TransactionResponseDTO tx1 = TransactionResponseDTO.builder()
+                .id("TX001")
+                .transactionType(TransactionType.DEPOSITO)
+                .amount(new BigDecimal("50"))
+                .date(LocalDateTime.now())
+                .sourceAccountId("111")
+                .destinationAccountId(null)
+                .build();
+
+        TransactionResponseDTO tx2 = TransactionResponseDTO.builder()
+                .id("TX002")
+                .transactionType(TransactionType.TRANSFERENCIA)
+                .amount(new BigDecimal("100"))
+                .date(LocalDateTime.now())
+                .sourceAccountId("123")
+                .destinationAccountId("456")
+                .build();
+
+        when(transactionService.listTransactions())
+                .thenReturn(Flux.just(tx1, tx2));
+
+        webTestClient.get()
+                .uri("/api/v1/transactions/record")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$[0].id").isEqualTo("TX001")
+                .jsonPath("$[0].transactionType").isEqualTo("DEPOSITO")
+                .jsonPath("$[1].id").isEqualTo("TX002")
+                .jsonPath("$[1].transactionType").isEqualTo("TRANSFERENCIA");
     }
 
 }
