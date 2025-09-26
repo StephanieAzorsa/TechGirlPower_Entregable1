@@ -28,6 +28,25 @@ public class GlobalExceptionHandlerTest {
     @Mock
     private WebExchangeBindException webExchangeBindException;
 
+    // CP-TS35: Debe retornar 404 Not Found
+    @Test
+    void handleAccountNotFound_ShouldReturnNotFound() {
+        // Arrange
+        String mensajeError = "La cuenta con ID 123 no existe";
+        AccountNotFoundException ex = new AccountNotFoundException(mensajeError);
+
+        // Act
+        ResponseEntity<Map<String, String>> response =
+                handler.handleAccountNotFound(ex).block();
+
+        // Assert
+        assertNotNull(response, "La respuesta no debería ser null");
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "El status debería ser 404");
+        assertNotNull(response.getBody(), "El body no debería ser null");
+        assertEquals("Recurso no encontrado", response.getBody().get("error"));
+        assertEquals(mensajeError, response.getBody().get("message"));
+        assertEquals("ACCOUNT_NOT_FOUND", response.getBody().get("code"));
+    }
     // CP-TS36: Debe retornar 400 Bad Request
     @Test
     void handleInsufficientBalance_ShouldReturnBadRequest() {
