@@ -1,6 +1,7 @@
-package com.nttdata.customerservice.service.strategy;
+package com.nttdata.customerservice.service.strategy.impl;
 
 import com.nttdata.customerservice.dto.CustomerRequestDTO;
+import com.nttdata.customerservice.service.strategy.ValidationStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

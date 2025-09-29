@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         errors.put("message", ex.getMessage());
 
-        return ResponseEntity.badRequest().body(errors);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
 
     @ExceptionHandler(InsufficientBalanceException.class)
@@ -60,6 +60,6 @@ public class GlobalExceptionHandler {
         errors.put("message", ex.getMessage());
         errors.put("errorCode", "CUSTOMER_NOT_FOUND");
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
 }

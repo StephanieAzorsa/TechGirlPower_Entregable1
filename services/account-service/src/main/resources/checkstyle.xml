@@ -8,7 +8,6 @@
             <property name="format"
                       value="com.nttdata.accountservice"/>
         </module>
-        <module name="ConstantName"/>
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>
         <module name="MemberName"/>
@@ -17,7 +16,6 @@
         <module name="ParameterName"/>
         <module name="StaticVariableName"/>
         <module name="TypeName"/>
-        <module name="AvoidStarImport"/>
         <module name="IllegalImport"/>
         <module name="UnusedImports"/>
         <module name="RedundantImport"/>

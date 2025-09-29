@@ -6,8 +6,9 @@
     <module name="TreeWalker">
         <module name="PackageName">
             <property name="format"
-                      value="com.nttdata.customerservice"/>
+                      value="com.nttdata.transactionservice"/>
         </module>
+        <module name="ConstantName"/>
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>
         <module name="MemberName"/>

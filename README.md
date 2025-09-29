@@ -3,12 +3,48 @@
 Proyecto incremental de un sistema bancario desarrollado durante el bootcamp, evolucionando desde una aplicación monolítica en Java hasta una arquitectura de
 microservicios con Spring Boot.
 
-## 📋 Descripción del Proyecto
 
-Este conjunto de proyectos plantea el desarrollo progresivo de un sistema integral para el sector bancario, orientado a la gestión de clientes, cuentas
-bancarias y transacciones financieras. A través de una serie de etapas, cada una más compleja que la anterior, se aplican y refuerzan conocimientos clave en
-diseño orientado a objetos, arquitectura basada en microservicios, bases de datos relacionales y no relacionales, desarrollo reactivo, aseguramiento de la
-calidad y buenas prácticas de programación.
+
+## 🏗️ Estructura del Proyecto
+
+```
+project-root/
+│
+├── api-request/
+│   └── account-ms            # Requests específicos para account-service
+│   └── customer-ms           # Requests específicos para customer-service
+│   └── transaction-ms        # Requests específicos para transaction-service
+│   └── postman               # Colección de Postman
+│
+├── documentation/            # Documentación del proyecto
+│
+├── services/
+│   ├── customer-service/     # Microservicio de clientes
+│   ├── account-service/      # Microservicio de cuentas
+│   └── transaction-service/  # Microservicio de transacciones
+│   └── gateway/              # API Gateway
+│
+└── README.md
+```
+
+## 🏗️ Desripción de los microservicios
+
+#### 🧑‍💼 Customer Service (customer-service)
+- Gestión completa de clientes
+- Validación de DNI único y formato de email
+- Prevención de eliminación si tiene cuentas activas
+
+#### 💰 Account Service (account-service)
+- Gestión completa de cuentas
+- Creación de cuentas (Ahorros/Corrientes) asociadas a clientes
+- Prevención del saldo mayor a 0
+- No se puede realizar retiro que deje el saldo en negativo para cuentas de Ahorro
+- Las cuentas corrientes pueden tener un sobregiro de hasta -500 
+
+#### 🔄 Transaction Service (transaction-service)
+- Depósitos y retiros
+- Transferencias entre cuentas
+- Historial transaccional
 
 ## 🛠 Stack Tecnológico por Entregable
 
@@ -17,20 +53,21 @@ calidad y buenas prácticas de programación.
 | 1          | Java 8/11, MySQL, UML                                              | Monolítica     |
 | 2          | Spring Boot, Spring Cloud, Spring Data JPA, MySQL, OpenAPI         | Microservicios |
 | 3          | Spring Boot, Spring Webflux, Spring Data Reactive MongoDB, OpenAPI | Microservicios |
-| 4          | Por definir                                                        | Por definir    |
+| 4          | JUnit 5, Mockito, Jacoco, Checkstyle                               | Microservicios |
+
 
 ## 📊 Descripción de Ramas
 
-| Rama         | Propósito                                                   |
-|--------------|-------------------------------------------------------------|
-| master       | Versión estable en producción                               | 
-| develop      | Integración para desarrollo activo                          |
-| feature/\*   | Desarrollo de nuevas funcionalidades                        |
-| hotfix/\*    | Correcciones urgentes                                       |
-| Entregable-1 | Versión entregada del Proyecto I (Java + MySQL)             |
-| Entregable-2 | Versión entregada del Proyecto II (Microservices + MySQL)   |
-| Entregable-3 | Versión entregada del Proyecto III (Microservice + MongoDB) |
-| Entregable-4 | Por definir                                                 |            
+| Rama         | Propósito                                                    |
+|--------------|--------------------------------------------------------------|
+| master       | Versión estable en producción                                | 
+| develop      | Integración para desarrollo activo                           |
+| feature/\*   | Desarrollo de nuevas funcionalidades                         |
+| hotfix/\*    | Correcciones urgentes                                        |
+| Entregable-1 | Versión entregada del Proyecto I (Java + MySQL)              |
+| Entregable-2 | Versión entregada del Proyecto II (Microservices + MySQL)    |
+| Entregable-3 | Versión entregada del Proyecto III (Microservice + MongoDB)  |
+| Entregable-4 | Pruebas Unitarias reactivas y no reactivas (JUnit + Mockito) |            
 
 ## 👥 Colaboradoras
 

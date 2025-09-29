@@ -8,7 +8,7 @@ import com.nttdata.customerservice.model.Customer;
 import com.nttdata.customerservice.repository.CustomerRepository;
 import com.nttdata.customerservice.service.AccountValidationService;
 import com.nttdata.customerservice.service.CustomerService;
-import com.nttdata.customerservice.service.strategy.ValidationContext;
+import com.nttdata.customerservice.service.ValidationContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
