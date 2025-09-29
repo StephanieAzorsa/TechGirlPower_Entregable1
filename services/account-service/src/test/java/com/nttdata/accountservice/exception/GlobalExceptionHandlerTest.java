@@ -58,7 +58,7 @@ public class GlobalExceptionHandlerTest {
                 exceptionHandler.handleAccountNotFoundException(exception);
 
         // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().containsKey("message"));
         assertEquals("Cuenta no encontrada", response.getBody().get("message"));
@@ -69,17 +69,17 @@ public class GlobalExceptionHandlerTest {
     void handleCustomerNotFoundException_ShouldReturnErrorMessage() {
         // Arrange (Organizar/Preparar)
         // Crea la excepción que será manejada por el controlador
-        InsufficientBalanceException exception =
-                new InsufficientBalanceException("Cliente no encontrado");
+        CustomerNotFoundException exception =
+                new CustomerNotFoundException("Cliente no encontrado");
 
         // Act (Actuar)
         // Ejecutar el métod que queremos probar
         ResponseEntity<Map<String, String>> response =
-                exceptionHandler.handleInsufficientBalanceException(exception);
+                exceptionHandler.handleCustomerNotFoundException(exception);
 
         // Assert (Afirmar/Verificar)
         // Verifica que el código de estado HTTP sea 400 (BAD_REQUEST)
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
         // Verifica que el cuerpo contenga la clave "message"
         assertTrue(response.getBody().containsKey("message"));
