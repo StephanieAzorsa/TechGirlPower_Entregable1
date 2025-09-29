@@ -8,7 +8,6 @@ import com.nttdata.customerservice.exception.DniAlreadyExistsException;
 import com.nttdata.customerservice.model.Customer;
 import com.nttdata.customerservice.repository.CustomerRepository;
 import com.nttdata.customerservice.service.impl.CustomerServiceImpl;
-import com.nttdata.customerservice.service.strategy.ValidationContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
