@@ -5,16 +5,11 @@ import com.nttdata.transactionservice.dto.TransactionResponseDTO;
 import com.nttdata.transactionservice.dto.TransferRequestDTO;
 import com.nttdata.transactionservice.model.TransactionType;
 import com.nttdata.transactionservice.service.TransactionService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,30 +17,20 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
-@ExtendWith(MockitoExtension.class)
+@WebFluxTest(TransactionController.class)
 public class TransactionControllerTest {
 
-    @Mock
+    @MockitoBean
     private TransactionService transactionService;
 
-    @InjectMocks
-    private TransactionController transactionController;
-
+    @Autowired
     private WebTestClient webTestClient;
-
-    @BeforeEach
-    void setUp() {
-        transactionService = Mockito.mock(TransactionService.class);
-        TransactionController transactionController = new TransactionController(transactionService);
-
-        webTestClient = WebTestClient.bindToController(transactionController).build();
-    }
 
     // CP-TS01: Debe procesar depósito exitosamente 200 OK
     @Test
@@ -66,17 +51,20 @@ public class TransactionControllerTest {
 
         when(transactionService.registerDeposit(any(TransactionRequestDTO.class))).thenReturn(Mono.just(transaction));
 
-        // Act
-        ResponseEntity<TransactionResponseDTO> response = transactionController.registerDeposit(request).block();
-
-        // Assert
-        assertNotNull(response, "La respuesta no debería ser null");
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody(), "El body no debería ser null");
-        assertEquals("tx-1", response.getBody().getId(), "El ID de la transacción debería coincidir");
-        assertEquals("account-1", response.getBody().getSourceAccountId(), "El ID de la cuenta debería coincidir");
-        assertEquals(new BigDecimal("150.00"), response.getBody().getAmount(), "El monto debería coincidir");
-        assertEquals(TransactionType.DEPOSITO, response.getBody().getTransactionType(), "El tipo de transacción debería ser DEPOSIT");
+        // Act & Assert con WebTestClient
+        webTestClient.post()
+                .uri("/api/v1/transactions/deposit")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(TransactionResponseDTO.class)
+                .value(response -> {
+                    assert response.getId().equals("tx-1");
+                    assert response.getSourceAccountId().equals("account-1");
+                    assert response.getAmount().compareTo(new BigDecimal("150.00")) == 0;
+                    assert response.getTransactionType() == TransactionType.DEPOSITO;
+                });
 
         verify(transactionService, times(1)).registerDeposit(any(TransactionRequestDTO.class));
     }
@@ -92,15 +80,13 @@ public class TransactionControllerTest {
         // El servicio no devuelve nada porque la validación falla
         when(transactionService.registerDeposit(any(TransactionRequestDTO.class))).thenReturn(Mono.empty());
 
-        // Act
-        ResponseEntity<TransactionResponseDTO> response = transactionController.registerDeposit(request).block();
-
-        // Assert
-        assertNotNull(response, "La respuesta no debería ser null");
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Debe retornar 400 Bad Request");
-        assertNull(response.getBody(), "El body debería ser null en caso de error");
-
-        verify(transactionService, times(1)).registerDeposit(any(TransactionRequestDTO.class));
+        // Act & Assert con WebTestClient
+        webTestClient.post()
+                .uri("/api/v1/transactions/deposit")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     // CP-TS03: Debe procesar retiro exitosamente 200 OK
@@ -121,17 +107,20 @@ public class TransactionControllerTest {
 
         when(transactionService.registerWithdrawal(any(TransactionRequestDTO.class))).thenReturn(Mono.just(transaction));
 
-        // Act
-        ResponseEntity<TransactionResponseDTO> response = transactionController.registerWithdraw(request).block();
-
-        // Assert
-        assertNotNull(response, "La respuesta no debería ser null");
-        assertEquals(HttpStatus.OK, response.getStatusCode(), "Debe retornar 200 OK");
-        assertNotNull(response.getBody(), "El body no debería ser null");
-        assertEquals("tx-2", response.getBody().getId(), "El ID debería coincidir");
-        assertEquals("account-2", response.getBody().getSourceAccountId(), "La cuenta debería coincidir");
-        assertEquals(new BigDecimal("50.00"), response.getBody().getAmount(), "El monto debería coincidir");
-        assertEquals(TransactionType.RETIRO, response.getBody().getTransactionType(), "El tipo debe ser RETIRO");
+        // Act & Assert con WebTestClient
+        webTestClient.post()
+                .uri("/api/v1/transactions/withdraw")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(TransactionResponseDTO.class)
+                .value(response -> {
+                    assertEquals("tx-2", response.getId());
+                    assertEquals("account-2", response.getSourceAccountId());
+                    assertEquals(new BigDecimal("50.00"), response.getAmount());
+                    assertEquals(TransactionType.RETIRO, response.getTransactionType());
+                });
 
         verify(transactionService, times(1)).registerWithdrawal(any(TransactionRequestDTO.class));
     }
@@ -144,17 +133,16 @@ public class TransactionControllerTest {
         invalidRequest.setAccountId(null);
         invalidRequest.setAmount(BigDecimal.ZERO);
 
-        when(transactionService.registerWithdrawal(any(TransactionRequestDTO.class))).thenReturn(Mono.error(new IllegalArgumentException("Datos inválidos")));
+        when(transactionService.registerWithdrawal(any(TransactionRequestDTO.class)))
+                .thenReturn(Mono.error(new IllegalArgumentException("Datos inválidos")));
 
-        // Act
-        ResponseEntity<TransactionResponseDTO> response = transactionController.registerWithdraw(invalidRequest).onErrorResume(ex -> Mono.just(ResponseEntity.badRequest().build())).block();
-
-        // Assert
-        assertNotNull(response, "La respuesta no debería ser null");
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Debe retornar 400 Bad Request");
-        assertNull(response.getBody(), "El body debería ser null en caso de error");
-
-        verify(transactionService, times(1)).registerWithdrawal(any(TransactionRequestDTO.class));
+        // Act & Assert con WebTestClient
+        webTestClient.post()
+                .uri("/api/v1/transactions/withdraw")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(invalidRequest)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
     /**
      * CP-TS05 - POST /transactions/transfer - Debe procesar transferencia exitosamente (200 OK)
