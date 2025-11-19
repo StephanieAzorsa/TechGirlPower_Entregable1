@@ -1,6 +1,6 @@
-# 🏦 Sistema Bancario - Bootcamp Tech Girls Power
+# 🏦 Banking Platform
 
-Proyecto incremental de un sistema bancario desarrollado durante el bootcamp, evolucionando desde una aplicación monolítica en Java hasta una arquitectura de
+Proyecto incremental de un sistema bancario, evolucionando desde una aplicación monolítica en Java hasta una arquitectura de
 microservicios con Spring Boot.
 
 
@@ -29,19 +29,19 @@ project-root/
 
 ## 🏗️ Desripción de los microservicios
 
-#### 🧑‍💼 Customer Service (customer-service)
+#### 👥 Microservicio de Clientes (customer-service)
 - Gestión completa de clientes
 - Validación de DNI único y formato de email
 - Prevención de eliminación si tiene cuentas activas
 
-#### 💰 Account Service (account-service)
+#### 💰 Microservicio de Cuentas (account-service)
 - Gestión completa de cuentas
 - Creación de cuentas (Ahorros/Corrientes) asociadas a clientes
 - Prevención del saldo mayor a 0
 - No se puede realizar retiro que deje el saldo en negativo para cuentas de Ahorro
 - Las cuentas corrientes pueden tener un sobregiro de hasta -500 
 
-#### 🔄 Transaction Service (transaction-service)
+#### 🔄 Microservicio de Transacciones (transaction-service)
 - Depósitos y retiros
 - Transferencias entre cuentas
 - Historial transaccional
@@ -64,10 +64,10 @@ project-root/
 | develop      | Integración para desarrollo activo                           |
 | feature/\*   | Desarrollo de nuevas funcionalidades                         |
 | hotfix/\*    | Correcciones urgentes                                        |
-| Entregable-1 | Versión entregada del Proyecto I (Java + MySQL)              |
-| Entregable-2 | Versión entregada del Proyecto II (Microservices + MySQL)    |
-| Entregable-3 | Versión entregada del Proyecto III (Microservice + MongoDB)  |
-| Entregable-4 | Pruebas Unitarias reactivas y no reactivas (JUnit + Mockito) |            
+| Entregable-1 | Versión entregada del Proyecto (Java + MySQL)              |
+| Entregable-2 | Versión entregada del Proyecto (Microservices + MySQL)    |
+| Entregable-3 | Versión entregada del Proyecto (Microservice + MongoDB)  |
+| Entregable-4 | Versión entregada del Proyecto (Pruebas Unitarias reactivas y no reactivas (JUnit + Mockito))|            
 
 ## 👥 Colaboradoras
 
